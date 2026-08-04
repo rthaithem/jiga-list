@@ -14,7 +14,7 @@ export const resources: Resource[] = [
     description:
       "Fully legal-adjacent aggregator with 1080p streams, subtitle support and a clean ad-light interface.",
     tags: ["streaming", "1080p", "subtitles"],
-    flags: ["no-ads", "verified"],
+    flags: ["recommended","no-ads", "verified"],
     mirrors: [{ label: "Mirror 1", url: "https://jiga.host" }],
     categories: ["movies", "tv-shows", "anime"],
   },
