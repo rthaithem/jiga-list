@@ -7,6 +7,17 @@ import type { Resource } from "./schema";
  */
 export const resources: Resource[] = [
   // ─────────────────────────── MOVIES ───────────────────────────
+ id: "jiga.host",
+    title: "jiga host movie",
+    url: "https://jiga.host",
+    description:
+      "Fully legal-adjacent aggregator with 1080p streams, subtitle support and a clean ad-light interface.",
+    tags: ["streaming", "1080p", "subtitles"],
+    flags: ["no-ads", "verified"],
+    mirrors: [{ label: "Mirror 1", url: "https://jiga.host" }],
+    categories: ["movies", "tv-shows", "anime"],
+  },
+  
   {
     id: "movies-soap2day",
     title: "Soap2Day",
