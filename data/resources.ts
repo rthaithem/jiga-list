@@ -7,7 +7,8 @@ import type { Resource } from "./schema";
  */
 export const resources: Resource[] = [
   // ─────────────────────────── MOVIES ───────────────────────────
- id: "jiga.host",
+ {
+   id: "jiga.host",
     title: "jiga host movie",
     url: "https://jiga.host",
     description:
