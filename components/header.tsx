@@ -113,7 +113,7 @@ export function Header({ onSearchClick }: HeaderProps) {
           </DropdownMenu>
 
           <Button variant="ghost" size="icon" asChild aria-label="GitHub">
-            <Link href="https://github.com" target="_blank" rel="noreferrer">
+            <Link href="https://github.com/rthaithem/jiga-list" target="_blank" rel="noreferrer">
               <Github className="h-4 w-4" />
             </Link>
           </Button>
