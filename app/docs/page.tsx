@@ -830,7 +830,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                   onClick={() => {
                     const snip = `export const SITE_CONFIG = {
   name: "Jiga List",
-  url: "https://your-domain.vercel.app",
+  url: "https://your-domain.pages.dev",
   author: "your-username",
   githubRepo: "your-username/your-repo",
   githubUrl: "https://github.com/your-username/your-repo",

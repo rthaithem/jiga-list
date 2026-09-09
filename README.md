@@ -15,8 +15,8 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
     <img src="https://img.shields.io/badge/Fork%20on%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Fork on GitHub" height="38" />
   </a>
   &nbsp;&nbsp;
-  <a href="https://jiga-list.vercel.app/">
-    <img src="https://img.shields.io/badge/Live%20Demo-jiga--list.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" height="38" />
+  <a href="https://jigalist.pages.dev/">
+    <img src="https://img.shields.io/badge/Live%20Demo-jigalist.pages.dev-000000?style=for-the-badge&logo=cloudflarepages&logoColor=white" alt="Live Demo" height="38" />
   </a>
 </p>
 
@@ -33,9 +33,9 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 ## 📑 Table of Contents
 
 - [Live Links](#-live-links)
-- [Deployment Guides (Vercel, Cloudflare Pages, GitHub Pages)](#-deployment-guides)
-  - [Option A: Deploy to Vercel](#option-a-deploy-to-vercel-recommended--1-click)
-  - [Option B: Deploy to Cloudflare Pages](#option-b-deploy-to-cloudflare-pages-global-edge-cdn)
+- [Deployment Guides (Cloudflare Pages, Vercel, GitHub Pages)](#-deployment-guides)
+  - [Option A: Deploy to Cloudflare Pages](#option-a-deploy-to-cloudflare-pages-global-edge-cdn)
+  - [Option B: Deploy to Vercel](#option-b-deploy-to-vercel-recommended--1-click)
   - [Option C: Deploy to GitHub Pages](#option-c-deploy-to-github-pages-automated-via-github-actions)
 - [How to Connect Your Fork to GitHub Issues](#-how-to-connect-your-fork-to-github-issues)
 - [Developer Community & Architecture](#-developer-community--architecture)
@@ -51,10 +51,10 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 
 | Resource | Description | URL |
 | :--- | :--- | :--- |
-| **Official Production Deployment** | Live web application running on Vercel Edge CDN | [https://jiga-list.vercel.app/](https://jiga-list.vercel.app/) |
-| **Developer Documentation Hub** | Architecture, schemas, deployment, and contributor guide | [https://jiga-list.vercel.app/docs?tab=developers](https://jiga-list.vercel.app/docs?tab=developers) |
-| **Community Contribution Portal** | Pre-formatted GitHub Issue generators | [https://jiga-list.vercel.app/docs?tab=contribute](https://jiga-list.vercel.app/docs?tab=contribute) |
-| **Safety & Adblocking Guide** | Safe browsing best practices & recommended filters | [https://jiga-list.vercel.app/docs?tab=security](https://jiga-list.vercel.app/docs?tab=security) |
+| **Official Production Deployment** | Live web application running on Cloudflare Pages Global Edge CDN | [https://jigalist.pages.dev/](https://jigalist.pages.dev/) |
+| **Developer Documentation Hub** | Architecture, schemas, deployment, and contributor guide | [https://jigalist.pages.dev/docs?tab=developers](https://jigalist.pages.dev/docs?tab=developers) |
+| **Community Contribution Portal** | Pre-formatted GitHub Issue generators | [https://jigalist.pages.dev/docs?tab=contribute](https://jigalist.pages.dev/docs?tab=contribute) |
+| **Safety & Adblocking Guide** | Safe browsing best practices & recommended filters | [https://jigalist.pages.dev/docs?tab=security](https://jigalist.pages.dev/docs?tab=security) |
 | **Official GitHub Repository** | Source code, issue tracker, and discussions | [https://github.com/rthaithem/jiga-list](https://github.com/rthaithem/jiga-list) |
 
 ---
@@ -175,7 +175,7 @@ To organize incoming community tickets on your repository, create the following 
 ## 💻 Developer Community & Architecture
 
 > 📖 **Interactive Developer Hub:**  
-> Access the live technical documentation directly at [https://jiga-list.vercel.app/docs?tab=developers](https://jiga-list.vercel.app/docs?tab=developers).
+> Access the live technical documentation directly at [https://jigalist.pages.dev/docs?tab=developers](https://jigalist.pages.dev/docs?tab=developers).
 
 ### Core Architectural Principles:
 

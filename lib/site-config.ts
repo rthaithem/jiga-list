@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   name: "Jiga List",
   description: "A lightning-fast, database-less directory & wiki for high-quality streaming websites, Android apps, and adblockers.",
-  url: "https://jiga-list.vercel.app",
+  url: "https://jigalist.pages.dev",
   author: "rthaithem",
   githubRepo: "rthaithem/jiga-list",
   githubUrl: "https://github.com/rthaithem/jiga-list",

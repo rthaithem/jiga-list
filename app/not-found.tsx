@@ -1,5 +1,7 @@
+"use client";
+
 import Link from "next/link";
-import { FileQuestion } from "lucide-react";
+import { FileQuestion, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -14,9 +16,23 @@ export default function NotFound() {
         This resource or category doesn&apos;t exist in the index. It may have
         been moved or removed.
       </p>
-      <Button asChild className="mt-2">
-        <Link href="/">Back to home</Link>
-      </Button>
+      <div className="flex items-center gap-2 mt-2">
+        <Button asChild>
+          <Link href="/">Back to home</Link>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.reload();
+            }
+          }}
+          className="gap-1.5"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reload
+        </Button>
+      </div>
     </div>
   );
 }
