@@ -1,0 +1,8 @@
+{
+  "name": "Jiga List",
+  "description": "A lightning-fast, database-less directory of streaming sites, tools, adblockers and Android apps. Community-curated and always free.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

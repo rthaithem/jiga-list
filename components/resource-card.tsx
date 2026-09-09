@@ -276,18 +276,24 @@ function ReportDialog({ resource }: { resource: Resource }) {
   );
 }
 
-export function FlagBadge({
-  flag,
-  className,
-}: {
-  flag: Flag;
-  className?: string;
-}) {
+export const FlagBadge = React.forwardRef<
+  HTMLDivElement,
+  {
+    flag: Flag;
+    className?: string;
+  } & React.HTMLAttributes<HTMLDivElement>
+>(({ flag, className, ...props }, ref) => {
   const meta = FLAG_META[flag];
   return (
-    <Badge variant={meta.variant} className={cn("gap-1", className)}>
+    <Badge
+      ref={ref}
+      variant={meta.variant}
+      className={cn("gap-1", className)}
+      {...props}
+    >
       {meta.icon}
       {meta.label}
     </Badge>
   );
-}
+});
+FlagBadge.displayName = "FlagBadge";
