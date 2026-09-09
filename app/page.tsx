@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Clapperboard,
-  BookOpen,
-  Search,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { categories } from "@/data/categories";
 import { resources } from "@/data/resources";
@@ -14,13 +7,7 @@ import { getCategoryIcon } from "@/components/category-icon";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResourceCard } from "@/components/resource-card";
-
-const STATS = [
-  { icon: Clapperboard, label: "Resources", value: resources.length },
-  { icon: BookOpen, label: "Categories", value: categories.length },
-  { icon: Zap, label: "Build time", value: "<1s" },
-  { icon: Users, label: "Contributors", value: "42" },
-];
+import { HomeStats } from "@/components/home-stats";
 
 export default function HomePage() {
   const featured = resources.filter((r) =>
@@ -55,23 +42,13 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {STATS.map(({ icon: Icon, label, value }) => (
-          <Card key={label} className="p-4">
-            <CardContent className="flex items-center gap-3 p-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
-                <Icon className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="text-lg font-semibold tabular-nums">{value}</p>
-                <p className="text-xs text-muted-foreground">{label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+      {/* Real connected metrics */}
+      <HomeStats
+        resourcesCount={resources.length}
+        categoriesCount={categories.length}
+      />
 
-      <section className="mb-10">
+      <section id="categories" className="mb-10 scroll-mt-20">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Browse categories
         </h2>
@@ -105,7 +82,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section>
+      <section id="featured-resources" className="scroll-mt-20">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Editor&apos;s picks
