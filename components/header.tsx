@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import {
   BookOpen,
-  Clapperboard,
   Github,
   Menu,
   Search,
@@ -38,9 +37,8 @@ export function Header({ onSearchClick }: HeaderProps) {
           <Menu className="h-4 w-4" />
         </Button>
 
-        <Link href="/" className="flex items-center gap-2 lg:hidden">
-          <Clapperboard className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold tracking-tight">
+        <Link href="/" className="flex items-center lg:hidden">
+          <span className="whitespace-nowrap text-base font-bold tracking-tight text-foreground transition-colors hover:text-primary">
             Jiga List
           </span>
         </Link>

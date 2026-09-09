@@ -4,737 +4,892 @@ import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  AlertCircle,
   AlertTriangle,
+  ArrowRight,
   BookOpen,
   Check,
+  CheckCircle2,
   Copy,
   ExternalLink,
   Flag,
   FolderPlus,
   Github,
   Globe,
+  HelpCircle,
   Layers,
   Search,
   Shield,
   ShieldCheck,
   Sparkles,
   Star,
+  Terminal,
   Zap,
 } from "lucide-react";
 
 import { categories } from "@/data/categories";
 import { resources } from "@/data/resources";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+
+const REPORT_REASONS: Record<string, string> = {
+  dead: "Dead / Offline Link (Domain expired, seized, or constant 404/502)",
+  malware: "Malicious popups / Deceptive download buttons / Redirects",
+  paywall: "Enforced paid paywall or subscription requirement",
+  copyright: "DMCA or Rights Holder takedown request",
+  outdated: "Outdated software / No longer maintained",
+  other: "Other issue",
+};
 
 export default function DocsPage() {
   return (
-    <React.Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading documentation…</div>}>
+    <React.Suspense
+      fallback={
+        <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+          Loading documentation…
+        </div>
+      }
+    >
       <DocsContent />
     </React.Suspense>
   );
 }
 
+type MainSection = "contribute" | "guide" | "security";
+type ContributeType = "site" | "category" | "report";
+
 function DocsContent() {
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") || "submit-site";
+
+  // Parse initial section and contribution sub-type from URL parameters
+  const initialTab = searchParams.get("tab") || "contribute";
   const prefillResourceId = searchParams.get("resource") || "";
 
-  const [activeTab, setActiveTab] = React.useState(initialTab);
+  const [activeSection, setActiveSection] = React.useState<MainSection>(() => {
+    if (initialTab === "usage" || initialTab === "guide") return "guide";
+    if (initialTab === "security") return "security";
+    return "contribute";
+  });
 
-  // Sync tab if url param changes
+  const [contributeType, setContributeType] = React.useState<ContributeType>(() => {
+    if (initialTab === "suggest-category") return "category";
+    if (initialTab === "report-issue" || prefillResourceId) return "report";
+    return "site";
+  });
+
+  // Sync state if query params change
   React.useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam) {
-      setActiveTab(tabParam);
+    if (tabParam === "usage" || tabParam === "guide") {
+      setActiveSection("guide");
+    } else if (tabParam === "security") {
+      setActiveSection("security");
+    } else if (tabParam === "suggest-category") {
+      setActiveSection("contribute");
+      setContributeType("category");
+    } else if (tabParam === "report-issue" || searchParams.get("resource")) {
+      setActiveSection("contribute");
+      setContributeType("report");
+    } else if (tabParam === "submit-site") {
+      setActiveSection("contribute");
+      setContributeType("site");
     }
   }, [searchParams]);
 
-  // 1. Submit Site Form State
-  const [subTitle, setSubTitle] = React.useState("");
-  const [subUrl, setSubUrl] = React.useState("");
-  const [subCategory, setSubCategory] = React.useState("movies");
-  const [subDesc, setSubDesc] = React.useState("");
-  const [subFlags, setSubFlags] = React.useState("free, no-ads");
-  const [copiedSiteTemplate, setCopiedSiteTemplate] = React.useState(false);
+  // Form 1: Submit Site
+  const [siteTitle, setSiteTitle] = React.useState("");
+  const [siteUrl, setSiteUrl] = React.useState("");
+  const [siteCategory, setSiteCategory] = React.useState("movies");
+  const [siteDescription, setSiteDescription] = React.useState("");
+  const [siteFlags, setSiteFlags] = React.useState("Free, No Ads");
+  const [copiedSite, setCopiedSite] = React.useState(false);
 
   const siteIssueMarkdown = React.useMemo(() => {
-    return `### [New Resource Proposal] ${subTitle || "<Resource Name>"}
+    return `### [New Resource Proposal] ${siteTitle || "<Resource Name>"}
 
-- **Title:** ${subTitle || "Example Name"}
-- **URL:** ${subUrl || "https://example.com"}
-- **Category:** ${subCategory}
-- **Description:** ${subDesc || "Short description of what this site or app offers."}
-- **Flags:** ${subFlags || "free, no-ads"}
-- **Reason for inclusion:** High quality, active, tested with adblockers.`;
-  }, [subTitle, subUrl, subCategory, subDesc, subFlags]);
+- **Title:** ${siteTitle || "Example Site"}
+- **URL:** ${siteUrl || "https://example.com"}
+- **Category:** ${siteCategory}
+- **Description:** ${siteDescription || "Brief explanation of the service and content offered."}
+- **Flags:** ${siteFlags || "Free, No Ads"}
+- **Verification:** Active domain, verified functional and safe with adblocking.`;
+  }, [siteTitle, siteUrl, siteCategory, siteDescription, siteFlags]);
 
-  const githubSiteIssueUrl = React.useMemo(() => {
-    const titleParam = encodeURIComponent(`[New Resource]: ${subTitle || "New Submission"}`);
-    const bodyParam = encodeURIComponent(siteIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${titleParam}&body=${bodyParam}`;
-  }, [subTitle, siteIssueMarkdown]);
+  const siteGithubUrl = React.useMemo(() => {
+    const title = encodeURIComponent(`[New Resource]: ${siteTitle || "New Submission"}`);
+    const body = encodeURIComponent(siteIssueMarkdown);
+    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
+  }, [siteTitle, siteIssueMarkdown]);
 
-  // 2. Suggest Category Form State
+  // Form 2: Suggest Category
   const [catName, setCatName] = React.useState("");
   const [catSlug, setCatSlug] = React.useState("");
-  const [catIcon, setCatIcon] = React.useState("folder");
+  const [catIcon, setCatIcon] = React.useState("Folder");
   const [catDesc, setCatDesc] = React.useState("");
   const [catExamples, setCatExamples] = React.useState("");
-  const [copiedCatTemplate, setCopiedCatTemplate] = React.useState(false);
+  const [copiedCat, setCopiedCat] = React.useState(false);
 
-  const handleCatNameChange = (val: string) => {
+  const handleCategoryNameChange = (val: string) => {
     setCatName(val);
     setCatSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""));
   };
 
   const catIssueMarkdown = React.useMemo(() => {
-    return `### [New Category Proposal] ${catName || "<Category Name>"}
+    return `### [Category Proposal] ${catName || "<Category Name>"}
 
 - **Category Name:** ${catName || "Example Category"}
-- **Suggested Slug:** ${catSlug || "example-slug"}
-- **Suggested Icon:** ${catIcon || "folder"}
+- **Slug:** ${catSlug || "example-category"}
+- **Suggested Icon:** ${catIcon || "Folder"}
 - **Description:** ${catDesc || "What kind of resources belong in this category?"}
-- **Starting Resources / Examples:**
-${catExamples || "- Example Site 1 (https://example1.com)\n- Example Site 2 (https://example2.com)"}
-- **Why this category should be added:** Adds great value for community members exploring this topic.`;
+- **Initial Recommended Sites / Apps:**
+${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (https://...)"}
+- **Reason:** Broadens the directory with useful community-requested resources.`;
   }, [catName, catSlug, catIcon, catDesc, catExamples]);
 
-  const githubCatIssueUrl = React.useMemo(() => {
-    const titleParam = encodeURIComponent(`[Category Proposal]: ${catName || "New Category"}`);
-    const bodyParam = encodeURIComponent(catIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${titleParam}&body=${bodyParam}`;
+  const catGithubUrl = React.useMemo(() => {
+    const title = encodeURIComponent(`[Category Proposal]: ${catName || "New Category"}`);
+    const body = encodeURIComponent(catIssueMarkdown);
+    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
   }, [catName, catIssueMarkdown]);
 
-  // 3. Report Broken Link Form State
-  const prefilledRes = React.useMemo(() => {
+  // Form 3: Report Issue
+  const prefillResource = React.useMemo(() => {
     return resources.find((r) => r.id === prefillResourceId);
   }, [prefillResourceId]);
 
-  const [reportTitle, setReportTitle] = React.useState(prefilledRes ? prefilledRes.title : "");
-  const [reportUrl, setReportUrl] = React.useState(prefilledRes ? prefilledRes.url : "");
-  const [reportReason, setReportReason] = React.useState("broken");
-  const [reportDetails, setReportDetails] = React.useState("");
-  const [copiedReportTemplate, setCopiedReportTemplate] = React.useState(false);
+  const [repTitle, setRepTitle] = React.useState(prefillResource ? prefillResource.title : "");
+  const [repUrl, setRepUrl] = React.useState(prefillResource ? prefillResource.url : "");
+  const [repReason, setRepReason] = React.useState("dead");
+  const [repNotes, setRepNotes] = React.useState("");
+  const [copiedReport, setCopiedReport] = React.useState(false);
 
   React.useEffect(() => {
-    if (prefilledRes) {
-      setReportTitle(prefilledRes.title);
-      setReportUrl(prefilledRes.url);
-      setActiveTab("report-issue");
+    if (prefillResource) {
+      setRepTitle(prefillResource.title);
+      setRepUrl(prefillResource.url);
+      setContributeType("report");
+      setActiveSection("contribute");
     }
-  }, [prefilledRes]);
+  }, [prefillResource]);
 
   const reportIssueMarkdown = React.useMemo(() => {
-    const reasonLabels: Record<string, string> = {
-      broken: "Dead / Offline Link (Server down or domain seized)",
-      malware: "Malicious redirects / Popups / Deceptive downloads",
-      paywall: "Introduced paid paywall / No longer free",
-      copyright: "DMCA or Copyright infringement request",
-      outdated: "Outdated software / No longer maintained",
-      other: "Other issue",
-    };
+    return `### [Broken Link / Incident Report] ${repTitle || "<Resource Name>"}
 
-    return `### [Issue Report] ${reportTitle || "<Resource Name>"}
+- **Resource:** ${repTitle || "Resource Name"}
+- **URL:** ${repUrl || "https://example.com"}
+- **Reason:** ${REPORT_REASONS[repReason] || repReason}
+- **Details:** ${repNotes || "Link fails to resolve or serves deceptive advertising."}
+- **Reported via:** Jiga List Documentation Portal`;
+  }, [repTitle, repUrl, repReason, repNotes]);
 
-- **Resource:** ${reportTitle || "Example Name"}
-- **URL:** ${reportUrl || "https://example.com"}
-- **Issue Type:** ${reasonLabels[reportReason] || reportReason}
-- **Details & Description:** ${reportDetails || "Link fails to resolve or gives 404/502 error."}
-- **Device & Browser:** Tested on desktop & mobile with standard browser.`;
-  }, [reportTitle, reportUrl, reportReason, reportDetails]);
-
-  const githubReportIssueUrl = React.useMemo(() => {
-    const titleParam = encodeURIComponent(`[Broken Link Report]: ${reportTitle || "Dead Link"}`);
-    const bodyParam = encodeURIComponent(reportIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${titleParam}&body=${bodyParam}`;
-  }, [reportTitle, reportIssueMarkdown]);
+  const reportGithubUrl = React.useMemo(() => {
+    const title = encodeURIComponent(`[Broken Link Report]: ${repTitle || "Dead Link"}`);
+    const body = encodeURIComponent(reportIssueMarkdown);
+    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
+  }, [repTitle, reportIssueMarkdown]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <header className="mb-8">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <BookOpen className="h-6 w-6" />
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      {/* Header */}
+      <div className="mb-8 flex flex-col gap-2 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Documentation &amp; Community
+            </h1>
+            <Badge variant="outline" className="hidden sm:inline-flex border-primary/40 text-primary">
+              v1.0
+            </Badge>
           </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">Documentation &amp; Guides</h1>
-              <Badge variant="info">Community Curated</Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Learn how to use Jiga List, submit new sites, suggest categories, report broken links, and protect your privacy.
-            </p>
-          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Official guides, security best practices, and community contribution tools for Jiga List.
+          </p>
         </div>
-      </header>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        {/* Responsive, neatly formatted horizontal scrollbar tabs for mobile & desktop */}
-        <div className="border-b pb-2">
-          <div className="no-scrollbar flex w-full overflow-x-auto">
-            <TabsList className="inline-flex h-auto w-auto min-w-full justify-start gap-1.5 bg-muted/50 p-1.5 sm:min-w-0 sm:justify-start">
-              <TabsTrigger
-                value="submit-site"
-                className="shrink-0 gap-1.5 whitespace-nowrap px-3.5 py-2 text-xs font-medium"
+        <div className="flex items-center gap-2 pt-2 sm:pt-0">
+          <Button variant="outline" size="sm" asChild className="gap-1.5 text-xs">
+            <a
+              href="https://github.com/rthaithem/jiga-list"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github className="h-3.5 w-3.5" />
+              Repository
+              <ExternalLink className="h-3 w-3 text-muted-foreground" />
+            </a>
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Section Navigation Bar */}
+      <div className="mb-8 grid grid-cols-3 gap-2 rounded-xl bg-muted/60 p-1.5 sm:gap-3">
+        <button
+          type="button"
+          onClick={() => setActiveSection("contribute")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "contribute"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Github className="h-4 w-4 text-primary shrink-0" />
+          <span className="truncate">GitHub Issues</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection("guide")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "guide"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <BookOpen className="h-4 w-4 text-primary shrink-0" />
+          <span className="truncate">User Guide</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection("security")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "security"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+          <span className="truncate">Adblock &amp; Safety</span>
+        </button>
+      </div>
+
+      {/* SECTION 1: COMMUNITY CONTRIBUTIONS (GITHUB ISSUES) */}
+      {activeSection === "contribute" && (
+        <div className="space-y-6">
+          {/* Sub-Type Selector Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-4">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Community Contribution Hub
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                All submissions, category proposals, and incident reports are handled via GitHub Issues.
+              </p>
+            </div>
+
+            <div className="inline-flex rounded-lg border border-border bg-muted/40 p-1">
+              <button
+                type="button"
+                onClick={() => setContributeType("site")}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  contributeType === "site"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <Globe className="h-3.5 w-3.5 text-primary" />
-                Submit a Site
-              </TabsTrigger>
-              <TabsTrigger
-                value="suggest-category"
-                className="shrink-0 gap-1.5 whitespace-nowrap px-3.5 py-2 text-xs font-medium"
+                Submit Site
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setContributeType("category")}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  contributeType === "category"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 <FolderPlus className="h-3.5 w-3.5 text-primary" />
                 Suggest Category
-              </TabsTrigger>
-              <TabsTrigger
-                value="report-issue"
-                className="shrink-0 gap-1.5 whitespace-nowrap px-3.5 py-2 text-xs font-medium text-destructive data-[state=active]:text-foreground"
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setContributeType("report")}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  contributeType === "report"
+                    ? "bg-background text-destructive shadow-sm"
+                    : "text-muted-foreground hover:text-destructive"
+                }`}
               >
-                <Flag className="h-3.5 w-3.5 text-destructive" />
+                <Flag className="h-3.5 w-3.5" />
                 Report Broken Link
-              </TabsTrigger>
-              <TabsTrigger
-                value="usage"
-                className="shrink-0 gap-1.5 whitespace-nowrap px-3.5 py-2 text-xs font-medium"
-              >
-                <Zap className="h-3.5 w-3.5" />
-                How to Use
-              </TabsTrigger>
-              <TabsTrigger
-                value="security"
-                className="shrink-0 gap-1.5 whitespace-nowrap px-3.5 py-2 text-xs font-medium"
-              >
-                <Shield className="h-3.5 w-3.5" />
-                Security &amp; Adblocking
-              </TabsTrigger>
-            </TabsList>
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Tab 1: Submit a Site */}
-        <TabsContent value="submit-site" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Github className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">Submit a New Website or App</CardTitle>
-              </div>
-              <CardDescription>
-                Jiga List is open source and community-curated. Proposing a new link or tool is done by opening a GitHub Issue on the repository.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-lg border bg-card p-4">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    1
-                  </div>
-                  <h3 className="mt-2 text-sm font-semibold">Verify Site Quality</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Ensure the site is active, accessible without forced paywalls, and free from malware.
+          {/* Form 1: Submit a Site */}
+          {contributeType === "site" && (
+            <div className="space-y-5 rounded-xl border border-border bg-card p-5 sm:p-6">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Submit a Website, Tool, or Android App
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Fill in the details below. We format the proposal and launch a ready-to-submit GitHub Issue.
                   </p>
                 </div>
-
-                <div className="rounded-lg border bg-card p-4">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    2
-                  </div>
-                  <h3 className="mt-2 text-sm font-semibold">Generate Issue</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Fill in the form below to auto-format your submission and open it on GitHub with one click.
-                  </p>
-                </div>
-
-                <div className="rounded-lg border bg-card p-4">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                    3
-                  </div>
-                  <h3 className="mt-2 text-sm font-semibold">Review &amp; Inclusion</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Maintainers verify the link, assign tags and flags (Free, No Ads), and merge it into the index.
-                  </p>
-                </div>
+                <Badge variant="outline" className="w-fit text-xs gap-1">
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  Auto-formatted Issue
+                </Badge>
               </div>
 
-              {/* Interactive Form */}
-              <div className="rounded-lg border border-primary/20 bg-card p-5">
-                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold">Interactive Resource Submission Generator</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Prepare your proposal and launch the prefilled GitHub Issue immediately.
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="w-fit gap-1 text-xs">
-                    <Sparkles className="h-3 w-3 text-primary" />
-                    Auto-formatted
-                  </Badge>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Resource Name <span className="text-primary">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Stremio, Braflix, or Revanced"
+                    value={siteTitle}
+                    onChange={(e) => setSiteTitle(e.target.value)}
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Resource Title</label>
-                    <Input
-                      placeholder="e.g. Braflix, Stremio, or Revanced"
-                      value={subTitle}
-                      onChange={(e) => setSubTitle(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">URL</label>
-                    <Input
-                      placeholder="https://example.com"
-                      value={subUrl}
-                      onChange={(e) => setSubUrl(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Category</label>
-                    <select
-                      value={subCategory}
-                      onChange={(e) => setSubCategory(e.target.value)}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    >
-                      {categories.map((c) => (
-                        <option key={c.slug} value={c.slug}>
-                          {c.name} ({c.slug})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Flags</label>
-                    <Input
-                      placeholder="free, no-ads, open-source, verified"
-                      value={subFlags}
-                      onChange={(e) => setSubFlags(e.target.value)}
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="mb-1 block text-xs font-medium">Short Description</label>
-                    <Input
-                      placeholder="What does this resource offer? Why is it useful?"
-                      value={subDesc}
-                      onChange={(e) => setSubDesc(e.target.value)}
-                    />
-                  </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Official URL <span className="text-primary">*</span>
+                  </label>
+                  <Input
+                    placeholder="https://example.com"
+                    value={siteUrl}
+                    onChange={(e) => setSiteUrl(e.target.value)}
+                  />
                 </div>
 
-                {/* Markdown Preview */}
-                <div className="mt-4 rounded-md border bg-muted/30 p-3 font-mono text-xs">
-                  <div className="mb-2 flex items-center justify-between text-muted-foreground">
-                    <span>Generated Issue Markdown:</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 gap-1 px-2 text-[10px]"
-                      onClick={() => {
-                        navigator.clipboard.writeText(siteIssueMarkdown);
-                        setCopiedSiteTemplate(true);
-                        setTimeout(() => setCopiedSiteTemplate(false), 2000);
-                      }}
-                    >
-                      {copiedSiteTemplate ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                      {copiedSiteTemplate ? "Copied" : "Copy"}
-                    </Button>
-                  </div>
-                  <pre className="overflow-x-auto whitespace-pre-wrap">{siteIssueMarkdown}</pre>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Category <span className="text-primary">*</span>
+                  </label>
+                  <select
+                    value={siteCategory}
+                    onChange={(e) => setSiteCategory(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name} ({cat.slug})
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <Button asChild className="gap-1.5 text-xs">
-                    <a href={githubSiteIssueUrl} target="_blank" rel="noopener noreferrer">
-                      <Github className="h-4 w-4" />
-                      Open Issue on GitHub
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-xs"
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Flags / Tags
+                  </label>
+                  <Input
+                    placeholder="Free, No Ads, Open Source, Verified"
+                    value={siteFlags}
+                    onChange={(e) => setSiteFlags(e.target.value)}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Description &amp; Why It Should Be Added
+                  </label>
+                  <Input
+                    placeholder="Brief description of features, quality, and ad levels..."
+                    value={siteDescription}
+                    onChange={(e) => setSiteDescription(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Generated Markdown Preview Box */}
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>GitHub Issue Preview:</span>
+                  <button
+                    type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(siteIssueMarkdown);
-                      setCopiedSiteTemplate(true);
-                      setTimeout(() => setCopiedSiteTemplate(false), 2000);
+                      setCopiedSite(true);
+                      setTimeout(() => setCopiedSite(false), 2000);
                     }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
                   >
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy Markdown Template
-                  </Button>
+                    {copiedSite ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy text
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap font-mono text-xs text-foreground/90">
+                  {siteIssueMarkdown}
+                </pre>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+                <Button asChild className="gap-2">
+                  <a href={siteGithubUrl} target="_blank" rel="noopener noreferrer">
+                    <Github className="h-4 w-4" />
+                    Open Issue on GitHub
+                  </a>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(siteIssueMarkdown);
+                    setCopiedSite(true);
+                    setTimeout(() => setCopiedSite(false), 2000);
+                  }}
+                  className="gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copiedSite ? "Template Copied!" : "Copy Markdown Template"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Form 2: Suggest Category */}
+          {contributeType === "category" && (
+            <div className="space-y-5 rounded-xl border border-border bg-card p-5 sm:p-6">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Suggest a New Section or Category
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Propose a topic not yet covered in Jiga List (e.g. Podcasts, Emulators, Educational).
+                  </p>
+                </div>
+                <Badge variant="outline" className="w-fit text-xs gap-1">
+                  <FolderPlus className="h-3 w-3 text-primary" />
+                  Category Request
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Category Name <span className="text-primary">*</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. Emulation &amp; ROMs, Podcasts, Audiobooks"
+                    value={catName}
+                    onChange={(e) => handleCategoryNameChange(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Suggested Slug
+                  </label>
+                  <Input
+                    placeholder="e.g. emulation"
+                    value={catSlug}
+                    onChange={(e) => setCatSlug(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Suggested Icon Name
+                  </label>
+                  <Input
+                    placeholder="e.g. Gamepad2, Radio, Headphones, Book"
+                    value={catIcon}
+                    onChange={(e) => setCatIcon(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Category Description
+                  </label>
+                  <Input
+                    placeholder="What kind of resources belong in this category?"
+                    value={catDesc}
+                    onChange={(e) => setCatDesc(e.target.value)}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Starting Recommended Sites (2 to 3 quality links)
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    placeholder="- Site 1 (https://example1.com) - Short summary&#10;- Site 2 (https://example2.com) - Short summary"
+                    value={catExamples}
+                    onChange={(e) => setCatExamples(e.target.value)}
+                  />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        {/* Tab 2: Suggest Category */}
-        <TabsContent value="suggest-category" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <FolderPlus className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">Suggest a New Category</CardTitle>
-              </div>
-              <CardDescription>
-                Have an idea for a whole new category (e.g. Podcasts, Emulators, Educational, Audiobooks)? Propose it through GitHub Issues.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-lg border border-primary/20 bg-card p-5">
-                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold">Category Proposal Generator</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Propose new sections with starting link recommendations.
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="w-fit gap-1 text-xs">
-                    <Sparkles className="h-3 w-3 text-primary" />
-                    Community Growth
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Category Name</label>
-                    <Input
-                      placeholder="e.g. Retro Emulation or Podcasts"
-                      value={catName}
-                      onChange={(e) => handleCatNameChange(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Suggested Slug</label>
-                    <Input
-                      placeholder="e.g. emulation"
-                      value={catSlug}
-                      onChange={(e) => setCatSlug(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Suggested Icon Name</label>
-                    <Input
-                      placeholder="e.g. Gamepad2, Radio, Headphones, Book"
-                      value={catIcon}
-                      onChange={(e) => setCatIcon(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Category Purpose</label>
-                    <Input
-                      placeholder="What kind of resources should be indexed here?"
-                      value={catDesc}
-                      onChange={(e) => setCatDesc(e.target.value)}
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="mb-1 block text-xs font-medium">
-                      Initial Recommended Websites / Apps (2-3 examples)
-                    </label>
-                    <textarea
-                      rows={3}
-                      className="w-full rounded-md border border-input bg-background p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                      placeholder="- Website 1 (https://...)\n- Website 2 (https://...)"
-                      value={catExamples}
-                      onChange={(e) => setCatExamples(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Markdown Preview */}
-                <div className="mt-4 rounded-md border bg-muted/30 p-3 font-mono text-xs">
-                  <div className="mb-2 flex items-center justify-between text-muted-foreground">
-                    <span>Generated Category Markdown:</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 gap-1 px-2 text-[10px]"
-                      onClick={() => {
-                        navigator.clipboard.writeText(catIssueMarkdown);
-                        setCopiedCatTemplate(true);
-                        setTimeout(() => setCopiedCatTemplate(false), 2000);
-                      }}
-                    >
-                      {copiedCatTemplate ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                      {copiedCatTemplate ? "Copied" : "Copy"}
-                    </Button>
-                  </div>
-                  <pre className="overflow-x-auto whitespace-pre-wrap">{catIssueMarkdown}</pre>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <Button asChild className="gap-1.5 text-xs">
-                    <a href={githubCatIssueUrl} target="_blank" rel="noopener noreferrer">
-                      <Github className="h-4 w-4" />
-                      Submit Category on GitHub
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-xs"
+              {/* Generated Markdown Preview Box */}
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>GitHub Issue Preview:</span>
+                  <button
+                    type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(catIssueMarkdown);
-                      setCopiedCatTemplate(true);
-                      setTimeout(() => setCopiedCatTemplate(false), 2000);
+                      setCopiedCat(true);
+                      setTimeout(() => setCopiedCat(false), 2000);
                     }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
                   >
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy Markdown Template
-                  </Button>
+                    {copiedCat ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy text
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap font-mono text-xs text-foreground/90">
+                  {catIssueMarkdown}
+                </pre>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+                <Button asChild className="gap-2">
+                  <a href={catGithubUrl} target="_blank" rel="noopener noreferrer">
+                    <Github className="h-4 w-4" />
+                    Propose Category on GitHub
+                  </a>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(catIssueMarkdown);
+                    setCopiedCat(true);
+                    setTimeout(() => setCopiedCat(false), 2000);
+                  }}
+                  className="gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copiedCat ? "Template Copied!" : "Copy Markdown Template"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Form 3: Report Broken Link */}
+          {contributeType === "report" && (
+            <div className="space-y-5 rounded-xl border border-destructive/30 bg-card p-5 sm:p-6">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Report a Broken Link or Problem
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Notice a dead website, suspicious redirect, or malware? Report it to help keep Jiga List clean.
+                  </p>
+                </div>
+                <Badge variant="destructive" className="w-fit text-xs gap-1">
+                  <Flag className="h-3 w-3" />
+                  Triage Report
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Resource Title
+                  </label>
+                  <Input
+                    placeholder="e.g. Resource Name"
+                    value={repTitle}
+                    onChange={(e) => setRepTitle(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    URL Address
+                  </label>
+                  <Input
+                    placeholder="https://broken-site.com"
+                    value={repUrl}
+                    onChange={(e) => setRepUrl(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Issue Reason
+                  </label>
+                  <select
+                    value={repReason}
+                    onChange={(e) => setRepReason(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    <option value="dead">Dead / Offline Link (Server down, 404/502)</option>
+                    <option value="malware">Malicious popups / Fake download buttons</option>
+                    <option value="paywall">Enforced paid paywall or subscription</option>
+                    <option value="copyright">DMCA or Rights Holder takedown</option>
+                    <option value="outdated">Outdated / No longer functioning</option>
+                    <option value="other">Other issue</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground">
+                    Details / Error Description
+                  </label>
+                  <Input
+                    placeholder="e.g. Domain returns 502 or domain parked"
+                    value={repNotes}
+                    onChange={(e) => setRepNotes(e.target.value)}
+                  />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        {/* Tab 3: Report Broken Link */}
-        <TabsContent value="report-issue" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Flag className="h-5 w-5 text-destructive" />
-                <CardTitle className="text-base">Report a Broken Link or Problem</CardTitle>
-              </div>
-              <CardDescription>
-                Help keep the directory fresh by flagging offline sites, deceptive domains, or malicious redirects directly on GitHub.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-5">
-                <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-destructive">
-                      Report Incident / Broken Link
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Submitting a report automatically creates an issue reviewed by the maintenance team.
-                    </p>
-                  </div>
-                  <Badge variant="destructive" className="w-fit gap-1 text-xs">
-                    <AlertTriangle className="h-3 w-3" />
-                    Live Review
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Resource Name</label>
-                    <Input
-                      placeholder="e.g. MovieSite or AppName"
-                      value={reportTitle}
-                      onChange={(e) => setReportTitle(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">URL</label>
-                    <Input
-                      placeholder="https://broken-site.com"
-                      value={reportUrl}
-                      onChange={(e) => setReportUrl(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Report Reason</label>
-                    <select
-                      value={reportReason}
-                      onChange={(e) => setReportReason(e.target.value)}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    >
-                      <option value="broken">Dead / Offline Link (Server down or domain seized)</option>
-                      <option value="malware">Malicious redirects / Popups / Deceptive downloads</option>
-                      <option value="paywall">Introduced paid paywall / No longer free</option>
-                      <option value="copyright">DMCA or Copyright infringement</option>
-                      <option value="outdated">Outdated software / No longer maintained</option>
-                      <option value="other">Other issue</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium">Additional Details</label>
-                    <Input
-                      placeholder="e.g. 502 Bad Gateway or redirects to scam"
-                      value={reportDetails}
-                      onChange={(e) => setReportDetails(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Markdown Preview */}
-                <div className="mt-4 rounded-md border bg-muted/30 p-3 font-mono text-xs">
-                  <div className="mb-2 flex items-center justify-between text-muted-foreground">
-                    <span>Generated Report Markdown:</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 gap-1 px-2 text-[10px]"
-                      onClick={() => {
-                        navigator.clipboard.writeText(reportIssueMarkdown);
-                        setCopiedReportTemplate(true);
-                        setTimeout(() => setCopiedReportTemplate(false), 2000);
-                      }}
-                    >
-                      {copiedReportTemplate ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-                      {copiedReportTemplate ? "Copied" : "Copy"}
-                    </Button>
-                  </div>
-                  <pre className="overflow-x-auto whitespace-pre-wrap">{reportIssueMarkdown}</pre>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <Button asChild variant="destructive" className="gap-1.5 text-xs">
-                    <a href={githubReportIssueUrl} target="_blank" rel="noopener noreferrer">
-                      <Github className="h-4 w-4" />
-                      Submit Report on GitHub (Open Issue)
-                    </a>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 text-xs"
+              {/* Generated Markdown Preview Box */}
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>GitHub Issue Preview:</span>
+                  <button
+                    type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(reportIssueMarkdown);
-                      setCopiedReportTemplate(true);
-                      setTimeout(() => setCopiedReportTemplate(false), 2000);
+                      setCopiedReport(true);
+                      setTimeout(() => setCopiedReport(false), 2000);
                     }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
                   >
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy Report Markdown
-                  </Button>
+                    {copiedReport ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy text
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap font-mono text-xs text-foreground/90">
+                  {reportIssueMarkdown}
+                </pre>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
+                <Button asChild variant="destructive" className="gap-2">
+                  <a href={reportGithubUrl} target="_blank" rel="noopener noreferrer">
+                    <Github className="h-4 w-4" />
+                    Submit Report on GitHub
+                  </a>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(reportIssueMarkdown);
+                    setCopiedReport(true);
+                    setTimeout(() => setCopiedReport(false), 2000);
+                  }}
+                  className="gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  {copiedReport ? "Template Copied!" : "Copy Report Markdown"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 2: USER GUIDE */}
+      {activeSection === "guide" && (
+        <div className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-base font-semibold text-foreground">How to Use Jiga List</h2>
+            <p className="text-xs text-muted-foreground">
+              Master search hotkeys, organize offline favorites, and toggle browsing views.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Feature 1 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Search className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Global Fast Search</h3>
+                  <p className="text-xs text-muted-foreground">Keyboard-driven fuzzy lookup</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Press <kbd className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">Ctrl + K</kbd> or press <kbd className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">/</kbd> anywhere to open the modal search dialog. Searches across titles, descriptions, categories, and tags in real time.
+              </p>
+            </div>
 
-        {/* Tab 4: How to Use */}
-        <TabsContent value="usage" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                <CardTitle className="text-base">User Guide</CardTitle>
-              </div>
-              <CardDescription>
-                Essential tips, shortcuts, and capabilities to make the most of Jiga List.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Search className="h-4 w-4 text-primary" />
-                    Instant Search (Ctrl + K)
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Press <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">Ctrl + K</kbd> or press <kbd className="rounded border bg-muted px-1 py-0.5 font-mono text-[10px]">/</kbd> anywhere to open the search palette and find any resource, category, or tag in milliseconds.
-                  </p>
+            {/* Feature 2 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+                  <Star className="h-5 w-5" />
                 </div>
-
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Star className="h-4 w-4 text-amber-500" />
-                    Favorites &amp; Markdown (.md)
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Click the star icon on any card to bookmark it. In the <strong>Favorites</strong> page, you can export your bookmarks to a Markdown (<code>.md</code>) file or restore them anytime.
-                  </p>
-                </div>
-
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Layers className="h-4 w-4 text-primary" />
-                    Grid vs. Compact View
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Toggle between the detailed Grid view and the streamlined Compact list view at the top of any resource listing for power browsing.
-                  </p>
-                </div>
-
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Globe className="h-4 w-4 text-primary" />
-                    Alternate Mirrors &amp; Domains
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Many popular streaming links maintain backup mirror domains. Click <strong>Mirrors</strong> on cards with alternate links to view and access active backups.
-                  </p>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Favorites &amp; Markdown (.md)</h3>
+                  <p className="text-xs text-muted-foreground">Private offline bookmarking</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Click the Star icon on any card to save it to your device. On the <strong>Favorites</strong> page, you can export your collection as a standard <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">.md</code> file or import an existing list to restore your links.
+              </p>
+            </div>
 
-        {/* Tab 5: Security & Adblocking */}
-        <TabsContent value="security" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-500" />
-                <CardTitle className="text-base">Safety &amp; Adblocking Starter Pack</CardTitle>
-              </div>
-              <CardDescription>
-                Free streaming websites frequently display intrusive popups and redirects. Protect your device with these recommended tools.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 font-semibold text-sm">
-                      <Shield className="h-4 w-4 text-emerald-500" />
-                      1. uBlock Origin (Essential)
-                    </div>
-                    <Badge variant="success">Must Have</Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    The single most effective content blocker available for Firefox, Chrome, and Edge. Blocks video ads, overlay popups, and crypto-miners automatically.
-                  </p>
-                  <Button variant="outline" size="sm" className="mt-3 h-7 gap-1 text-xs" asChild>
-                    <a href="https://ublockorigin.com" target="_blank" rel="noopener noreferrer">
-                      Install uBlock Origin <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
+            {/* Feature 3 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Layers className="h-5 w-5" />
                 </div>
-
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 font-semibold text-sm">
-                      <Globe className="h-4 w-4 text-primary" />
-                      2. Encrypted DNS (Bypass ISP Blocks)
-                    </div>
-                    <Badge variant="outline">Unblock Links</Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    If an address shows &quot;Site cannot be reached&quot;, your local ISP may have DNS-blocked it. Change your browser or router DNS to:
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2 text-xs font-mono">
-                    <span className="rounded bg-muted px-2 py-1">Cloudflare: 1.1.1.1</span>
-                    <span className="rounded bg-muted px-2 py-1">AdGuard DNS: 94.140.14.14</span>
-                    <span className="rounded bg-muted px-2 py-1">Quad9: 9.9.9.9</span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border p-4">
-                  <div className="flex items-center gap-2 font-semibold text-sm">
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
-                    3. Safe Streaming Rules
-                  </div>
-                  <ul className="mt-2 list-disc pl-5 text-xs space-y-1 text-muted-foreground">
-                    <li>Never download or run executable (.exe) or unexpected APK files from streaming sites.</li>
-                    <li>Ignore fake &quot;Update Flash Player&quot; or &quot;Your device has a virus&quot; alerts.</li>
-                    <li>Always use official links listed on Jiga List or their verified mirrors.</li>
-                  </ul>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Grid vs. Compact Views</h3>
+                  <p className="text-xs text-muted-foreground">Dense browsing experience</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Use the layout toggle at the top of category lists to switch between rich cards (with descriptions and tags) and high-density single-line compact rows for power browsing.
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Globe className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Mirrors &amp; Backups</h3>
+                  <p className="text-xs text-muted-foreground">Resilient streaming domains</p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Websites with alternate domains feature a <strong>Mirrors</strong> button. If your primary link is blocked by an ISP or undergoing server maintenance, switch to one of the verified mirror links.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 3: SAFETY & ADBLOCKING */}
+      {activeSection === "security" && (
+        <div className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <h2 className="text-base font-semibold text-foreground">Safety &amp; Adblocking Starter Pack</h2>
+            <p className="text-xs text-muted-foreground">
+              Recommended tools and configurations to browse streaming websites securely without deceptive popups or malware.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Recommendation 1 */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    1. uBlock Origin (Essential)
+                  </h3>
+                </div>
+                <Badge variant="outline" className="w-fit border-emerald-500/40 text-emerald-600 dark:text-emerald-400 text-xs">
+                  Highest Recommendation
+                </Badge>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                The most lightweight, open-source content blocker for Firefox, Chrome, Edge, and Android (via Firefox Mobile). Automatically filters popups, video ads, transparent click-overlays, and malicious redirects.
+              </p>
+              <div className="mt-3">
+                <Button variant="outline" size="sm" asChild className="gap-1.5 text-xs">
+                  <a href="https://ublockorigin.com" target="_blank" rel="noopener noreferrer">
+                    Install uBlock Origin
+                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Recommendation 2 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <Globe className="h-5 w-5 text-primary shrink-0" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    2. Encrypted DNS (Bypass ISP Censorship)
+                  </h3>
+                </div>
+                <Badge variant="outline" className="w-fit text-xs">
+                  Unblock Websites
+                </Badge>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Many streaming domains are not down—they are blocked at the ISP DNS resolver level. Switching your device or browser DNS to encrypted DNS (DNS-over-HTTPS) restores access immediately:
+              </p>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3 font-mono text-xs">
+                <div className="rounded-lg border bg-muted/40 p-2.5">
+                  <div className="font-semibold text-foreground">Cloudflare DNS</div>
+                  <div className="text-muted-foreground text-[11px]">1.1.1.1 / 1.0.0.1</div>
+                </div>
+                <div className="rounded-lg border bg-muted/40 p-2.5">
+                  <div className="font-semibold text-foreground">Quad9 (Malware Block)</div>
+                  <div className="text-muted-foreground text-[11px]">9.9.9.9 / 149.112.112.112</div>
+                </div>
+                <div className="rounded-lg border bg-muted/40 p-2.5">
+                  <div className="font-semibold text-foreground">AdGuard DNS</div>
+                  <div className="text-muted-foreground text-[11px]">94.140.14.14</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommendation 3 */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  3. Safe Streaming Rules
+                </h3>
+              </div>
+              <ul className="mt-3 space-y-2 text-xs text-muted-foreground list-disc pl-5">
+                <li>
+                  <strong className="text-foreground">Never run downloaded executable files:</strong> Video streams play in your web browser. If a site downloads an <code className="font-mono text-[11px]">.exe</code>, <code className="font-mono text-[11px]">.bat</code>, or unknown file, cancel it immediately.
+                </li>
+                <li>
+                  <strong className="text-foreground">Ignore fake browser alerts:</strong> Notices like &ldquo;Your Flash Player is out of date&rdquo; or &ldquo;System infected with virus&rdquo; are deceptive ads. Close the tab.
+                </li>
+                <li>
+                  <strong className="text-foreground">Use verified community links:</strong> Prefer the official domains listed in Jiga List or official backup mirrors.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
