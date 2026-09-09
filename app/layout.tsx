@@ -40,12 +40,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script
-          id="jiga-accent-init"
+          id="jiga-init"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var a=localStorage.getItem("jiga_accent_theme");if(a&&["cyan","emerald","violet","amber","rose","blue"].indexOf(a)!==-1){document.documentElement.setAttribute("data-accent",a);}else{document.documentElement.setAttribute("data-accent","cyan");}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"){document.documentElement.classList.remove("dark");}else{document.documentElement.classList.add("dark");}var a=localStorage.getItem("jiga_accent_theme");if(a&&["cyan","emerald","violet","amber","rose","blue"].indexOf(a)!==-1){document.documentElement.setAttribute("data-accent",a);}else{document.documentElement.setAttribute("data-accent","cyan");}}catch(e){document.documentElement.classList.add("dark");}})();`,
           }}
         />
       </head>

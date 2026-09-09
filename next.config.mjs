@@ -18,7 +18,7 @@ if (rawBasePath.endsWith("/")) {
 
 const nextConfig = {
   reactStrictMode: true,
-  output: isExport ? "export" : "standalone",
+  ...(isExport ? { output: "export" } : {}),
   trailingSlash: isExport,
   ...(rawBasePath ? { basePath: rawBasePath } : {}),
   images: {
