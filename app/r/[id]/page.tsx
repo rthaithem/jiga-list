@@ -7,6 +7,7 @@ import { resources } from "@/data/resources";
 import { categories } from "@/data/categories";
 import type { Resource } from "@/data/schema";
 import { ResourceCard, FlagBadge } from "@/components/resource-card";
+import { FavoriteButton } from "@/components/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,16 +70,19 @@ export default function ResourcePage({ params }: ResourcePageProps) {
                     <span className="font-mono">{hostname(resource.url)}</span>
                   </div>
                 </div>
-                <Button asChild className="gap-1.5">
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Visit site
-                  </a>
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <FavoriteButton resourceId={resource.id} />
+                  <Button asChild className="gap-1.5">
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Visit site
+                    </a>
+                  </Button>
+                </div>
               </div>
 
               <p className="text-sm leading-relaxed text-muted-foreground">

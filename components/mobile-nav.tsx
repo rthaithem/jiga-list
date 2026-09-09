@@ -3,11 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, X } from "lucide-react";
+import { BookOpen, Home, Settings, Star, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/categories";
 import { getCategoryIcon } from "@/components/category-icon";
+import { useFavorites } from "@/lib/favorites";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +23,14 @@ interface MobileNavProps {
 
 export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   const pathname = usePathname();
+  const { favoriteIds } = useFavorites();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-0 translate-y-0 gap-0 rounded-b-xl rounded-t-none border-x-0 border-t-0 p-0 sm:max-w-none">
         <DialogHeader className="flex flex-row items-center justify-between border-b p-4">
           <DialogTitle className="text-sm font-semibold">
-            Categories
+            Navigation &amp; Categories
           </DialogTitle>
           <button
             onClick={() => onOpenChange(false)}
@@ -39,7 +41,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
           </button>
         </DialogHeader>
 
-        <div className="flex flex-col gap-1 overflow-y-auto p-2">
+        <div className="flex max-h-[80vh] flex-col gap-1 overflow-y-auto p-2">
           <MobileLink
             href="/"
             label="Home"
@@ -47,6 +49,19 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
             active={pathname === "/"}
             onNavigate={() => onOpenChange(false)}
           />
+          <MobileLink
+            href="/favorites"
+            label="Favorites"
+            icon={<Star className="h-4 w-4" />}
+            count={favoriteIds.length}
+            active={pathname === "/favorites"}
+            onNavigate={() => onOpenChange(false)}
+          />
+
+          <div className="my-1 border-t px-3 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Categories
+          </div>
+
           {categories.map((category) => {
             const Icon = getCategoryIcon(category.icon);
             const active =
@@ -64,6 +79,25 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
               />
             );
           })}
+
+          <div className="my-1 border-t px-3 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            General
+          </div>
+
+          <MobileLink
+            href="/docs"
+            label="Docs & Guides"
+            icon={<BookOpen className="h-4 w-4" />}
+            active={pathname === "/docs"}
+            onNavigate={() => onOpenChange(false)}
+          />
+          <MobileLink
+            href="/settings"
+            label="Settings"
+            icon={<Settings className="h-4 w-4" />}
+            active={pathname === "/settings"}
+            onNavigate={() => onOpenChange(false)}
+          />
         </div>
       </DialogContent>
     </Dialog>

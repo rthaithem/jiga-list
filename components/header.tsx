@@ -3,16 +3,20 @@
 import * as React from "react";
 import Link from "next/link";
 import {
+  BookOpen,
   Clapperboard,
   Github,
   Languages,
   Menu,
   Search,
   Send,
+  Settings,
+  Star,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useFavorites } from "@/lib/favorites";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +45,7 @@ const LANGS = [
 
 export function Header({ onSearchClick }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { favoriteIds } = useFavorites();
 
   return (
     <>
@@ -92,6 +97,38 @@ export function Header({ onSearchClick }: HeaderProps) {
             <Search className="h-4 w-4" />
           </Button>
 
+          {/* Favorites link */}
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            aria-label="Favorites"
+            className="relative"
+          >
+            <Link href="/favorites">
+              <Star className="h-4 w-4" />
+              {favoriteIds.length > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-black">
+                  {favoriteIds.length}
+                </span>
+              )}
+            </Link>
+          </Button>
+
+          {/* Docs link */}
+          <Button variant="ghost" size="icon" asChild aria-label="Documentation">
+            <Link href="/docs">
+              <BookOpen className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          {/* Settings link */}
+          <Button variant="ghost" size="icon" asChild aria-label="Settings">
+            <Link href="/settings">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Language">
@@ -115,11 +152,6 @@ export function Header({ onSearchClick }: HeaderProps) {
           <Button variant="ghost" size="icon" asChild aria-label="GitHub">
             <Link href="https://github.com/rthaithem/jiga-list" target="_blank" rel="noreferrer">
               <Github className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild aria-label="Telegram">
-            <Link href="https://t.me" target="_blank" rel="noreferrer">
-              <Send className="h-4 w-4" />
             </Link>
           </Button>
 

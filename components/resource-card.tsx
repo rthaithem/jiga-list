@@ -38,6 +38,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/lib/favorites";
 
 const FLAG_META: Record<
   Flag,
@@ -60,8 +61,16 @@ const FLAG_META: Record<
   legal: { label: "Legal", icon: <ShieldCheck className="h-3 w-3" />, variant: "success" },
 };
 
-export function ResourceCard({ resource }: { resource: Resource }) {
+export function ResourceCard({
+  resource,
+  compact = false,
+}: {
+  resource: Resource;
+  compact?: boolean;
+}) {
   const [copied, setCopied] = React.useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(resource.id);
 
   const copyUrl = React.useCallback(async () => {
     try {
@@ -72,6 +81,62 @@ export function ResourceCard({ resource }: { resource: Resource }) {
       /* clipboard unavailable */
     }
   }, [resource.url]);
+
+  if (compact) {
+    return (
+      <div className="group flex items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2 text-sm transition-colors hover:border-primary/40 hover:bg-accent/30">
+        <div className="flex min-w-0 items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => toggleFavorite(resource.id)}
+            className="h-7 w-7 shrink-0 text-muted-foreground hover:text-amber-500"
+            aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Star
+              className={cn(
+                "h-3.5 w-3.5",
+                favorited ? "fill-amber-500 text-amber-500" : "text-muted-foreground"
+              )}
+            />
+          </Button>
+          <a
+            href={resource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="truncate font-medium text-foreground hover:text-primary"
+          >
+            {resource.title}
+          </a>
+          <span className="hidden truncate text-xs text-muted-foreground md:inline">
+            — {resource.description}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {resource.flags.slice(0, 2).map((flag) => {
+            const meta = FLAG_META[flag];
+            return (
+              <Badge key={flag} variant={meta.variant} className="hidden h-5 px-1.5 text-[10px] sm:inline-flex">
+                {meta.label}
+              </Badge>
+            );
+          })}
+          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
+            <Link href={`/r/${resource.id}`}>Info</Link>
+          </Button>
+          <Button size="sm" variant="outline" className="h-7 px-2 text-xs gap-1" onClick={copyUrl}>
+            {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+          </Button>
+          <Button size="sm" className="h-7 px-2 text-xs gap-1" asChild>
+            <a href={resource.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3 w-3" />
+              Visit
+            </a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="group relative flex flex-col gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/30">
@@ -97,6 +162,20 @@ export function ResourceCard({ resource }: { resource: Resource }) {
             {resource.description}
           </p>
         </div>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => toggleFavorite(resource.id)}
+          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-amber-500"
+          aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Star
+            className={cn(
+              "h-4 w-4 transition-transform",
+              favorited ? "fill-amber-500 text-amber-500" : "text-muted-foreground"
+            )}
+          />
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-1.5">

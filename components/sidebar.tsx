@@ -3,11 +3,20 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Clapperboard, Home } from "lucide-react";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Clapperboard,
+  Home,
+  Settings,
+  Star,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/categories";
 import { getCategoryIcon } from "@/components/category-icon";
+import { useFavorites } from "@/lib/favorites";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -15,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 export function Sidebar() {
   const [collapsed, setCollapsed] = React.useState(false);
   const pathname = usePathname();
+  const { favoriteIds } = useFavorites();
 
   return (
     <aside
@@ -46,6 +56,14 @@ export function Sidebar() {
             collapsed={collapsed}
             active={pathname === "/"}
           />
+          <SidebarLink
+            href="/favorites"
+            label="Favorites"
+            icon={Star}
+            collapsed={collapsed}
+            count={favoriteIds.length}
+            active={pathname === "/favorites"}
+          />
 
           <p
             className={cn(
@@ -73,6 +91,30 @@ export function Sidebar() {
               />
             );
           })}
+
+          <p
+            className={cn(
+              "px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground",
+              collapsed && "text-center px-0"
+            )}
+          >
+            {collapsed ? "…" : "General"}
+          </p>
+
+          <SidebarLink
+            href="/docs"
+            label="Docs & Guide"
+            icon={BookOpen}
+            collapsed={collapsed}
+            active={pathname === "/docs"}
+          />
+          <SidebarLink
+            href="/settings"
+            label="Settings"
+            icon={Settings}
+            collapsed={collapsed}
+            active={pathname === "/settings"}
+          />
         </nav>
       </ScrollArea>
 

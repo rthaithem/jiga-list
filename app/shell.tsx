@@ -6,9 +6,14 @@ import { Header } from "@/components/header";
 import { SearchPalette } from "@/components/search-palette";
 import { Sidebar } from "@/components/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { applyAccentToDocument } from "@/lib/settings";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    applyAccentToDocument();
+  }, []);
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
