@@ -10,10 +10,14 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  Code2,
   Copy,
+  Cpu,
   ExternalLink,
+  FileCode2,
   Flag,
   FolderPlus,
+  GitBranch,
   Github,
   Globe,
   HelpCircle,
@@ -24,6 +28,7 @@ import {
   Sparkles,
   Star,
   Terminal,
+  Users,
   Zap,
 } from "lucide-react";
 
@@ -32,6 +37,7 @@ import { resources } from "@/data/resources";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 const REPORT_REASONS: Record<string, string> = {
   dead: "Dead / Offline Link (Domain expired, seized, or constant 404/502)",
@@ -56,7 +62,7 @@ export default function DocsPage() {
   );
 }
 
-type MainSection = "contribute" | "guide" | "security";
+type MainSection = "contribute" | "guide" | "security" | "developers";
 type ContributeType = "site" | "category" | "report";
 
 function DocsContent() {
@@ -69,6 +75,7 @@ function DocsContent() {
   const [activeSection, setActiveSection] = React.useState<MainSection>(() => {
     if (initialTab === "usage" || initialTab === "guide") return "guide";
     if (initialTab === "security") return "security";
+    if (initialTab === "developers" || initialTab === "dev" || initialTab === "code") return "developers";
     return "contribute";
   });
 
@@ -85,6 +92,8 @@ function DocsContent() {
       setActiveSection("guide");
     } else if (tabParam === "security") {
       setActiveSection("security");
+    } else if (tabParam === "developers" || tabParam === "dev" || tabParam === "code") {
+      setActiveSection("developers");
     } else if (tabParam === "suggest-category") {
       setActiveSection("contribute");
       setContributeType("category");
@@ -119,7 +128,7 @@ function DocsContent() {
   const siteGithubUrl = React.useMemo(() => {
     const title = encodeURIComponent(`[New Resource]: ${siteTitle || "New Submission"}`);
     const body = encodeURIComponent(siteIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
+    return `${SITE_CONFIG.githubIssuesUrl}?title=${title}&body=${body}`;
   }, [siteTitle, siteIssueMarkdown]);
 
   // Form 2: Suggest Category
@@ -150,7 +159,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
   const catGithubUrl = React.useMemo(() => {
     const title = encodeURIComponent(`[Category Proposal]: ${catName || "New Category"}`);
     const body = encodeURIComponent(catIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
+    return `${SITE_CONFIG.githubIssuesUrl}?title=${title}&body=${body}`;
   }, [catName, catIssueMarkdown]);
 
   // Form 3: Report Issue
@@ -186,8 +195,12 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
   const reportGithubUrl = React.useMemo(() => {
     const title = encodeURIComponent(`[Broken Link Report]: ${repTitle || "Dead Link"}`);
     const body = encodeURIComponent(reportIssueMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${title}&body=${body}`;
+    return `${SITE_CONFIG.githubIssuesUrl}?title=${title}&body=${body}`;
   }, [repTitle, reportIssueMarkdown]);
+
+  // Developer tab helper states
+  const [copiedDevSnippet, setCopiedDevSnippet] = React.useState(false);
+  const [copiedConfigSnippet, setCopiedConfigSnippet] = React.useState(false);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -203,14 +216,14 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Official guides, security best practices, and community contribution tools for Jiga List.
+            Guides, developer resources, GitHub integrations, and community contribution tools for Jiga List.
           </p>
         </div>
 
         <div className="flex items-center gap-2 pt-2 sm:pt-0">
           <Button variant="outline" size="sm" asChild className="gap-1.5 text-xs">
             <a
-              href="https://github.com/rthaithem/jiga-list"
+              href={SITE_CONFIG.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -219,11 +232,22 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
               <ExternalLink className="h-3 w-3 text-muted-foreground" />
             </a>
           </Button>
+
+          <Button variant="default" size="sm" asChild className="gap-1.5 text-xs">
+            <a
+              href={SITE_CONFIG.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Live Site
+            </a>
+          </Button>
         </div>
       </div>
 
       {/* Main Section Navigation Bar */}
-      <div className="mb-8 grid grid-cols-3 gap-2 rounded-xl bg-muted/60 p-1.5 sm:gap-3">
+      <div className="mb-8 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1.5 sm:grid-cols-4 sm:gap-2">
         <button
           type="button"
           onClick={() => setActiveSection("contribute")}
@@ -235,6 +259,19 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
         >
           <Github className="h-4 w-4 text-primary shrink-0" />
           <span className="truncate">GitHub Issues</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection("developers")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "developers"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Code2 className="h-4 w-4 text-primary shrink-0" />
+          <span className="truncate">Developers</span>
         </button>
 
         <button
@@ -720,7 +757,246 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
         </div>
       )}
 
-      {/* SECTION 2: USER GUIDE */}
+      {/* SECTION 2: DEVELOPER & PROGRAMMING COMMUNITY (مجتمع البرمجة) */}
+      {activeSection === "developers" && (
+        <div className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-foreground">
+                Developer Community &amp; Architecture Wiki
+              </h2>
+              <Badge variant="outline" className="border-primary/40 text-primary text-[11px]">
+                Open Source
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Technical architecture, TypeScript schemas, GitHub Issues linking instructions, and PR guidelines.
+            </p>
+          </div>
+
+          {/* Deployment Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Official Production Deployment</span>
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Hosted with high availability and instant global CDN edge distribution.
+              </p>
+            </div>
+            <Button size="sm" asChild className="gap-1.5 shrink-0 text-xs">
+              <a href={SITE_CONFIG.url} target="_blank" rel="noopener noreferrer">
+                {SITE_CONFIG.url}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </Button>
+          </div>
+
+          {/* Step 1: Connecting your Fork to GitHub Issues */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <GitBranch className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    1. Connecting your Fork to GitHub Issues
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    How someone downloading or forking this project can link all buttons to their own repo.
+                  </p>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-[10px]">Zero-Hassle</Badge>
+            </div>
+
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              All GitHub interactions (Submit Site, Propose Category, Report Broken Link, Repository Links, and Contributor statistics) are centrally managed in a single file: <code className="font-mono rounded bg-muted px-1.5 py-0.5 text-foreground">/lib/site-config.ts</code>.
+            </p>
+
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                <span>/lib/site-config.ts</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const snip = `export const SITE_CONFIG = {
+  name: "Jiga List",
+  url: "https://your-domain.vercel.app",
+  author: "your-username",
+  githubRepo: "your-username/your-repo",
+  githubUrl: "https://github.com/your-username/your-repo",
+  githubIssuesUrl: "https://github.com/your-username/your-repo/issues/new",
+  githubContributorsApi: "https://api.github.com/repos/your-username/your-repo/contributors",
+  githubContributorsGraph: "https://github.com/your-username/your-repo/graphs/contributors",
+};`;
+                    navigator.clipboard.writeText(snip);
+                    setCopiedConfigSnippet(true);
+                    setTimeout(() => setCopiedConfigSnippet(false), 2000);
+                  }}
+                  className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                >
+                  {copiedConfigSnippet ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-500" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      Copy config
+                    </>
+                  )}
+                </button>
+              </div>
+              <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+{`export const SITE_CONFIG = {
+  name: "Jiga List",
+  url: "${SITE_CONFIG.url}",
+  author: "${SITE_CONFIG.author}",
+  githubRepo: "${SITE_CONFIG.githubRepo}",
+  githubUrl: "${SITE_CONFIG.githubUrl}",
+  githubIssuesUrl: "${SITE_CONFIG.githubIssuesUrl}",
+  githubContributorsApi: "${SITE_CONFIG.githubContributorsApi}",
+  githubContributorsGraph: "${SITE_CONFIG.githubContributorsGraph}",
+};`}
+              </pre>
+            </div>
+
+            <div className="space-y-1.5 text-xs text-muted-foreground list-disc pl-5">
+              <li>
+                <strong className="text-foreground">Automated Query Parameters:</strong> All issue generators format the title and markdown body, then encode them into <code className="font-mono text-[11px]">?title=...&amp;body=...</code> query strings passed to GitHub.
+              </li>
+              <li>
+                <strong className="text-foreground">Dynamic Contributors Metric:</strong> The home page requests your repository&apos;s contributors list in real time via the public GitHub REST API.
+              </li>
+            </div>
+          </div>
+
+          {/* Step 2: Data Schema & Adding Resources */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <FileCode2 className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  2. TypeScript Schema &amp; Adding Resources via PR
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  The data layer lives in typed TypeScript arrays in <code className="font-mono text-[11px]">/data/resources.ts</code>.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              To add a new site, open <code className="font-mono rounded bg-muted px-1.5 py-0.5 text-foreground">data/resources.ts</code> and append a new object adhering to the <code className="font-mono rounded bg-muted px-1.5 py-0.5 text-foreground">Resource</code> type:
+            </p>
+
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                <span>Example Resource Object</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const snip = `{
+  id: "movies-braflix",
+  title: "Braflix",
+  url: "https://braflix.gd",
+  category: "movies",
+  description: "Clean streaming interface with multi-server auto-failover and subbed/dubbed audio tracks.",
+  flags: ["recommended", "free", "no-ads", "verified"],
+  mirrors: ["https://braflix.st"],
+},`;
+                    navigator.clipboard.writeText(snip);
+                    setCopiedDevSnippet(true);
+                    setTimeout(() => setCopiedDevSnippet(false), 2000);
+                  }}
+                  className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                >
+                  {copiedDevSnippet ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-500" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      Copy snippet
+                    </>
+                  )}
+                </button>
+              </div>
+              <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+{`{
+  id: "movies-braflix",
+  title: "Braflix",
+  url: "https://braflix.gd",
+  category: "movies",
+  description: "Clean streaming interface with multi-server auto-failover and subbed/dubbed audio tracks.",
+  flags: ["recommended", "free", "no-ads", "verified"],
+  mirrors: ["https://braflix.st"],
+}`}
+              </pre>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+              <div className="rounded-lg border bg-muted/20 p-3">
+                <span className="font-semibold text-foreground">Available Flags:</span>
+                <p className="mt-1 text-muted-foreground text-[11px] leading-relaxed">
+                  <code className="font-mono">recommended</code>, <code className="font-mono">mirror</code>, <code className="font-mono">ads</code>, <code className="font-mono">no-ads</code>, <code className="font-mono">foss</code>, <code className="font-mono">free</code>, <code className="font-mono">verified</code>
+                </p>
+              </div>
+              <div className="rounded-lg border bg-muted/20 p-3">
+                <span className="font-semibold text-foreground">Static Pre-rendering:</span>
+                <p className="mt-1 text-muted-foreground text-[11px] leading-relaxed">
+                  Every resource automatically receives its own static page at <code className="font-mono">/r/[id]</code> with OpenGraph cards and mirror switcher.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3: Local Development & Build Workflow */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Terminal className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  3. Development Commands &amp; Static Export
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Run locally with zero environment variables or database setup.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2 font-mono text-xs sm:grid-cols-2">
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="text-muted-foreground text-[11px] font-sans">1. Start development server</div>
+                <div className="mt-1 font-semibold text-foreground">npm run dev</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="text-muted-foreground text-[11px] font-sans">2. Run strict ESLint checks</div>
+                <div className="mt-1 font-semibold text-foreground">npm run lint</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="text-muted-foreground text-[11px] font-sans">3. Build production SSG HTML</div>
+                <div className="mt-1 font-semibold text-foreground">npm run build</div>
+              </div>
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <div className="text-muted-foreground text-[11px] font-sans">4. Run production server</div>
+                <div className="mt-1 font-semibold text-foreground">npm run start</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 3: USER GUIDE */}
       {activeSection === "guide" && (
         <div className="space-y-6">
           <div className="border-b border-border pb-4">
@@ -798,7 +1074,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
         </div>
       )}
 
-      {/* SECTION 3: SAFETY & ADBLOCKING */}
+      {/* SECTION 4: SAFETY & ADBLOCKING */}
       {activeSection === "security" && (
         <div className="space-y-6">
           <div className="border-b border-border pb-4">

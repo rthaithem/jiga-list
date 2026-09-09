@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { Resource } from "@/data/schema";
 import { resources } from "@/data/resources";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 const FAVORITES_STORAGE_KEY = "jiga_favorites_ids";
 const FAVORITES_EVENT = "jiga-favorites-updated";
@@ -102,7 +103,7 @@ export function exportFavoritesToMarkdown(favorites: Resource[]): void {
   const dateStr = new Date().toISOString().split("T")[0];
   let md = `# Jiga List — Saved Favorites\n\n`;
   md += `> Exported on ${dateStr} · Total saved: ${favorites.length} resources\n\n`;
-  md += `Directory: [Jiga List](https://github.com/rthaithem/jiga-list)\n\n`;
+  md += `Directory: [${SITE_CONFIG.name}](${SITE_CONFIG.url}) · [GitHub](${SITE_CONFIG.githubUrl})\n\n`;
   md += `---\n\n`;
 
   if (favorites.length === 0) {

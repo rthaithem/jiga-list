@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 interface HomeStatsProps {
   resourcesCount: number;
@@ -46,7 +47,7 @@ export function HomeStats({ resourcesCount, categoriesCount }: HomeStatsProps) {
     }
 
     // Fetch live contributors count from GitHub repository
-    fetch("https://api.github.com/repos/rthaithem/jiga-list/contributors")
+    fetch(SITE_CONFIG.githubContributorsApi)
       .then((res) => {
         if (res.ok) return res.json();
         throw new Error("GitHub rate limit or error");
@@ -95,11 +96,11 @@ export function HomeStats({ resourcesCount, categoriesCount }: HomeStatsProps) {
     },
     {
       id: "stat-contributors",
-      href: "https://github.com/rthaithem/jiga-list/graphs/contributors",
+      href: SITE_CONFIG.githubContributorsGraph,
       icon: Users,
       value: contributorsCount,
       label: contributorsCount === 1 ? "Contributor" : "Contributors",
-      subtext: "@rthaithem on GitHub",
+      subtext: `@${SITE_CONFIG.author} on GitHub`,
       isExternal: true,
     },
   ];

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import type { Flag, Resource } from "@/data/schema";
+import { SITE_CONFIG } from "@/lib/site-config";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -327,7 +328,7 @@ function ReportDialog({ resource }: { resource: Resource }) {
   const githubIssueUrl = React.useMemo(() => {
     const titleParam = encodeURIComponent(`[Broken Link Report]: ${resource.title}`);
     const bodyParam = encodeURIComponent(reportMarkdown);
-    return `https://github.com/rthaithem/jiga-list/issues/new?title=${titleParam}&body=${bodyParam}`;
+    return `${SITE_CONFIG.githubIssuesUrl}?title=${titleParam}&body=${bodyParam}`;
   }, [resource.title, reportMarkdown]);
 
   return (

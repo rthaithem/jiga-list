@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useFavorites } from "@/lib/favorites";
 import { MobileNav } from "@/components/mobile-nav";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 interface HeaderProps {
   onSearchClick: () => void;
@@ -106,7 +107,7 @@ export function Header({ onSearchClick }: HeaderProps) {
           </Button>
 
           <Button variant="ghost" size="icon" asChild aria-label="GitHub">
-            <Link href="https://github.com/rthaithem/jiga-list" target="_blank" rel="noreferrer">
+            <Link href={SITE_CONFIG.githubUrl} target="_blank" rel="noreferrer">
               <Github className="h-4 w-4" />
             </Link>
           </Button>
