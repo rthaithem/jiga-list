@@ -51,7 +51,12 @@ export function applyAccentToDocument(): void {
 }
 
 export function useAccent() {
-  const [accent, setAccent] = React.useState<AccentColor>("cyan");
+  const [accent, setAccent] = React.useState<AccentColor>(() => {
+    if (typeof window !== "undefined") {
+      return getStoredAccent();
+    }
+    return "cyan";
+  });
 
   React.useEffect(() => {
     const current = getStoredAccent();

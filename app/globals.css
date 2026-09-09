@@ -49,52 +49,74 @@
   }
 
   /* Theme accent color overrides */
-  :root[data-accent="emerald"] {
+  :root[data-accent="cyan"],
+  html[data-accent="cyan"] {
+    --primary: 186 100% 42%;
+    --ring: 186 100% 42%;
+  }
+  .dark[data-accent="cyan"],
+  [data-accent="cyan"] .dark,
+  html.dark[data-accent="cyan"] {
+    --primary: 186 100% 45%;
+    --ring: 186 100% 45%;
+  }
+
+  :root[data-accent="emerald"],
+  html[data-accent="emerald"] {
     --primary: 160 84% 39%;
     --ring: 160 84% 39%;
   }
   .dark[data-accent="emerald"],
-  [data-accent="emerald"] .dark {
+  [data-accent="emerald"] .dark,
+  html.dark[data-accent="emerald"] {
     --primary: 160 84% 45%;
     --ring: 160 84% 45%;
   }
 
-  :root[data-accent="violet"] {
+  :root[data-accent="violet"],
+  html[data-accent="violet"] {
     --primary: 263 70% 50%;
     --ring: 263 70% 50%;
   }
   .dark[data-accent="violet"],
-  [data-accent="violet"] .dark {
+  [data-accent="violet"] .dark,
+  html.dark[data-accent="violet"] {
     --primary: 263 70% 60%;
     --ring: 263 70% 60%;
   }
 
-  :root[data-accent="amber"] {
+  :root[data-accent="amber"],
+  html[data-accent="amber"] {
     --primary: 38 92% 50%;
     --ring: 38 92% 50%;
   }
   .dark[data-accent="amber"],
-  [data-accent="amber"] .dark {
+  [data-accent="amber"] .dark,
+  html.dark[data-accent="amber"] {
     --primary: 38 92% 50%;
     --ring: 38 92% 50%;
   }
 
-  :root[data-accent="rose"] {
+  :root[data-accent="rose"],
+  html[data-accent="rose"] {
     --primary: 346 84% 53%;
     --ring: 346 84% 53%;
   }
   .dark[data-accent="rose"],
-  [data-accent="rose"] .dark {
+  [data-accent="rose"] .dark,
+  html.dark[data-accent="rose"] {
     --primary: 346 84% 60%;
     --ring: 346 84% 60%;
   }
 
-  :root[data-accent="blue"] {
+  :root[data-accent="blue"],
+  html[data-accent="blue"] {
     --primary: 217 91% 60%;
     --ring: 217 91% 60%;
   }
   .dark[data-accent="blue"],
-  [data-accent="blue"] .dark {
+  [data-accent="blue"] .dark,
+  html.dark[data-accent="blue"] {
     --primary: 217 91% 60%;
     --ring: 217 91% 60%;
   }

@@ -41,6 +41,14 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          id="jiga-accent-init"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var a=localStorage.getItem("jiga_accent_theme");if(a&&["cyan","emerald","violet","amber","rose","blue"].indexOf(a)!==-1){document.documentElement.setAttribute("data-accent",a);}else{document.documentElement.setAttribute("data-accent","cyan");}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} font-sans`}>
         <ThemeProvider
           attribute="class"

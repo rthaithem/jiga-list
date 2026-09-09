@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Home, Settings, Star, X } from "lucide-react";
+import { BookOpen, Home, Settings, Star } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { categories } from "@/data/categories";
@@ -28,17 +28,10 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-0 translate-y-0 gap-0 rounded-b-xl rounded-t-none border-x-0 border-t-0 p-0 sm:max-w-none">
-        <DialogHeader className="flex flex-row items-center justify-between border-b p-4">
+        <DialogHeader className="border-b p-4 pr-12 text-left">
           <DialogTitle className="text-sm font-semibold">
             Navigation &amp; Categories
           </DialogTitle>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </DialogHeader>
 
         <div className="flex max-h-[80vh] flex-col gap-1 overflow-y-auto p-2">
