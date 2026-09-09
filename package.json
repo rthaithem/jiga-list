@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
+    "build:export": "NEXT_OUTPUT=export next build",
     "start": "next start",
     "lint": "next lint"
   },
