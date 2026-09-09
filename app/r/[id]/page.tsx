@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Globe } from "lucide-react";
+import { ArrowLeft, ExternalLink, Flag, Globe } from "lucide-react";
 
 import { resources } from "@/data/resources";
 import { categories } from "@/data/categories";
@@ -81,6 +81,17 @@ export default function ResourcePage({ params }: ResourcePageProps) {
                       <ExternalLink className="h-4 w-4" />
                       Visit site
                     </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    asChild
+                    size="sm"
+                    className="gap-1.5 text-muted-foreground hover:text-destructive"
+                  >
+                    <Link href={`/docs?tab=report-issue&resource=${resource.id}`}>
+                      <Flag className="h-3.5 w-3.5" />
+                      Report
+                    </Link>
                   </Button>
                 </div>
               </div>

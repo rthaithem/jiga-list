@@ -115,7 +115,7 @@ export default function SettingsPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Palette className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Accent Color / تخصيص الألوان</CardTitle>
+              <CardTitle className="text-base">Accent Color</CardTitle>
             </div>
             <CardDescription>
               Choose an accent highlight color for buttons, badges, and focus rings across the interface.
@@ -143,7 +143,7 @@ export default function SettingsPage() {
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-xs font-semibold">{opt.name}</p>
-                      <p className="truncate text-[10px] text-muted-foreground">{opt.nameAr}</p>
+                      <p className="truncate text-[10px] text-muted-foreground">{opt.description}</p>
                     </div>
                   </button>
                 );
@@ -192,7 +192,7 @@ export default function SettingsPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <HardDrive className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Storage &amp; Cache / إدارة الكاش والبيانات</CardTitle>
+              <CardTitle className="text-base">Storage &amp; Cache</CardTitle>
             </div>
             <CardDescription>
               Jiga List runs completely in your browser without tracking or remote databases. All preferences and favorites are stored locally.

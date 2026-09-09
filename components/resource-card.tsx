@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Flag as FlagIcon,
   GitFork,
+  Github,
   Link2,
   Star,
   ShieldAlert,
@@ -299,24 +300,38 @@ function MirrorsDialog({ resource }: { resource: Resource }) {
   );
 }
 
-function ReportDialog({ resource }: { resource: Resource }) {
-  const [state, setState] = React.useState<"idle" | "sending" | "done">("idle");
+const REPORT_REASON_LABELS: Record<string, string> = {
+  broken: "Dead / Offline Link (Server down or 404/502)",
+  malware: "Malicious redirects / Popups / Malware",
+  paywall: "Introduced paid paywall / No longer free",
+  copyright: "DMCA or Copyright infringement request",
+  other: "Other issue",
+};
 
-  const report = React.useCallback(() => {
-    setState("sending");
-    const subject = encodeURIComponent(`[Broken Link] ${resource.title}`);
-    const body = encodeURIComponent(
-      `Resource: ${resource.title}\nURL: ${resource.url}\n\nIssue:`
-    );
-    window.setTimeout(() => {
-      window.location.href = `mailto:reports@jigalist.example?subject=${subject}&body=${body}`;
-      setState("done");
-      window.setTimeout(() => setState("idle"), 2000);
-    }, 300);
-  }, [resource]);
+function ReportDialog({ resource }: { resource: Resource }) {
+  const [reason, setReason] = React.useState("broken");
+  const [details, setDetails] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+
+  const reportMarkdown = React.useMemo(() => {
+    return `### [Issue Report] ${resource.title}
+
+- **Resource:** ${resource.title}
+- **URL:** ${resource.url}
+- **ID:** ${resource.id}
+- **Issue Type:** ${REPORT_REASON_LABELS[reason] || reason}
+- **Details:** ${details || "Reported broken or problematic by community member."}
+- **Timestamp:** ${new Date().toISOString()}`;
+  }, [resource, reason, details]);
+
+  const githubIssueUrl = React.useMemo(() => {
+    const titleParam = encodeURIComponent(`[Broken Link Report]: ${resource.title}`);
+    const bodyParam = encodeURIComponent(reportMarkdown);
+    return `https://github.com/rthaithem/jiga-list/issues/new?title=${titleParam}&body=${bodyParam}`;
+  }, [resource.title, reportMarkdown]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           size="sm"
@@ -329,25 +344,66 @@ function ReportDialog({ resource }: { resource: Resource }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Report broken link</DialogTitle>
+          <DialogTitle className="flex items-center gap-2 text-destructive">
+            <FlagIcon className="h-4 w-4" />
+            Report Resource Issue
+          </DialogTitle>
           <DialogDescription>
-            Help the community by reporting a dead, geo-blocked or unsafe link
-            for <span className="font-medium text-foreground">{resource.title}</span>.
+            Help keep Jiga List clean and working. This will prepare and open an issue on GitHub for maintainers to review.
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          {resource.url}
+
+        <div className="space-y-3 py-2">
+          <div className="rounded-md bg-muted/50 p-2.5 font-mono text-xs">
+            <span className="font-semibold text-foreground">{resource.title}</span>
+            <div className="truncate text-muted-foreground">{resource.url}</div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium">Issue Reason</label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="broken">Dead / Offline Link (Site not loading or domain seized)</option>
+              <option value="malware">Malicious redirects / Popups / Deceptive downloads</option>
+              <option value="paywall">Introduced paid paywall / No longer free</option>
+              <option value="copyright">DMCA or Copyright infringement</option>
+              <option value="other">Other problem</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium">Additional Notes (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. 502 error or redirects to scam"
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
         </div>
-        <DialogFooter>
-          <Button onClick={report} disabled={state !== "idle"} className="gap-1.5">
-            {state === "sending" ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : state === "done" ? (
-              <Check className="h-3.5 w-3.5" />
-            ) : (
-              <FlagIcon className="h-3.5 w-3.5" />
-            )}
-            {state === "done" ? "Submitted" : "Submit report"}
+
+        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => setOpen(false)}
+          >
+            <Link href={`/docs?tab=report-issue&resource=${resource.id}`}>
+              Open full report page
+            </Link>
+          </Button>
+
+          <Button asChild variant="destructive" size="sm" className="gap-1.5 text-xs">
+            <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
+              <Github className="h-3.5 w-3.5" />
+              Submit Report on GitHub
+            </a>
           </Button>
         </DialogFooter>
       </DialogContent>

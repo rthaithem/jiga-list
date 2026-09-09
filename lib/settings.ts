@@ -7,18 +7,18 @@ export type AccentColor = "cyan" | "emerald" | "violet" | "amber" | "rose" | "bl
 export interface AccentOption {
   id: AccentColor;
   name: string;
-  nameAr: string;
+  description: string;
   hsl: string;
   hex: string;
 }
 
 export const ACCENT_OPTIONS: AccentOption[] = [
-  { id: "cyan", name: "Cyan (Default)", nameAr: "سماوي (الافتراضي)", hsl: "186 100% 42%", hex: "#06b6d4" },
-  { id: "emerald", name: "Emerald", nameAr: "زمردي أخضر", hsl: "160 84% 39%", hex: "#10b981" },
-  { id: "violet", name: "Violet", nameAr: "بنفسجي", hsl: "263 70% 50%", hex: "#8b5cf6" },
-  { id: "amber", name: "Amber", nameAr: "كهرماني برتقالي", hsl: "38 92% 50%", hex: "#f59e0b" },
-  { id: "rose", name: "Rose", nameAr: "وردي أحمر", hsl: "346 84% 53%", hex: "#f43f5e" },
-  { id: "blue", name: "Blue", nameAr: "أزرق كلاسيكي", hsl: "217 91% 60%", hex: "#3b82f6" },
+  { id: "cyan", name: "Cyan", description: "Default neon cyan", hsl: "186 100% 42%", hex: "#06b6d4" },
+  { id: "emerald", name: "Emerald", description: "Vibrant natural green", hsl: "160 84% 39%", hex: "#10b981" },
+  { id: "violet", name: "Violet", description: "Deep electric purple", hsl: "263 70% 50%", hex: "#8b5cf6" },
+  { id: "amber", name: "Amber", description: "Warm solar orange", hsl: "38 92% 50%", hex: "#f59e0b" },
+  { id: "rose", name: "Rose", description: "Vivid scarlet rose", hsl: "346 84% 53%", hex: "#f43f5e" },
+  { id: "blue", name: "Blue", description: "Classic sapphire blue", hsl: "217 91% 60%", hex: "#3b82f6" },
 ];
 
 const ACCENT_STORAGE_KEY = "jiga_accent_theme";

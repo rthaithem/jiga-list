@@ -42,7 +42,7 @@ export function Sidebar() {
         <Clapperboard className="h-5 w-5 shrink-0 text-primary" />
         {!collapsed && (
           <span className="truncate text-sm font-semibold tracking-tight">
-            Jiga List <span className="text-primary">Docs</span>
+            Jiga List
           </span>
         )}
       </div>

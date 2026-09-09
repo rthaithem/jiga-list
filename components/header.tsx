@@ -6,10 +6,8 @@ import {
   BookOpen,
   Clapperboard,
   Github,
-  Languages,
   Menu,
   Search,
-  Send,
   Settings,
   Star,
 } from "lucide-react";
@@ -17,31 +15,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useFavorites } from "@/lib/favorites";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { MobileNav } from "@/components/mobile-nav";
 
 interface HeaderProps {
   onSearchClick: () => void;
 }
-
-const LANGS = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-  { code: "de", label: "Deutsch" },
-  { code: "fr", label: "Français" },
-  { code: "hi", label: "हिन्दी" },
-  { code: "ja", label: "日本語" },
-  { code: "pt", label: "Português" },
-  { code: "ru", label: "Русский" },
-  { code: "zh", label: "中文" },
-];
 
 export function Header({ onSearchClick }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -63,7 +41,7 @@ export function Header({ onSearchClick }: HeaderProps) {
         <Link href="/" className="flex items-center gap-2 lg:hidden">
           <Clapperboard className="h-5 w-5 text-primary" />
           <span className="text-sm font-semibold tracking-tight">
-            Jiga List <span className="text-primary">Docs</span>
+            Jiga List
           </span>
         </Link>
 
@@ -128,26 +106,6 @@ export function Header({ onSearchClick }: HeaderProps) {
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Language">
-                <Languages className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="max-h-72 w-40">
-              <DropdownMenuLabel>Language</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {LANGS.map((lang) => (
-                <DropdownMenuItem key={lang.code}>
-                  <span className="mr-2 w-6 font-mono text-xs text-muted-foreground">
-                    {lang.code}
-                  </span>
-                  {lang.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <Button variant="ghost" size="icon" asChild aria-label="GitHub">
             <Link href="https://github.com/rthaithem/jiga-list" target="_blank" rel="noreferrer">
