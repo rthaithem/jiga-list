@@ -33,7 +33,10 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 ## 📑 Table of Contents
 
 - [Live Links](#-live-links)
-- [1-Click Deployment to Vercel](#-1-click-deployment-to-vercel)
+- [Deployment Guides (Vercel, Cloudflare Pages, GitHub Pages)](#-deployment-guides)
+  - [Option A: Deploy to Vercel](#option-a-deploy-to-vercel-recommended--1-click)
+  - [Option B: Deploy to Cloudflare Pages](#option-b-deploy-to-cloudflare-pages-global-edge-cdn)
+  - [Option C: Deploy to GitHub Pages](#option-c-deploy-to-github-pages-automated-via-github-actions)
 - [How to Connect Your Fork to GitHub Issues](#-how-to-connect-your-fork-to-github-issues)
 - [Developer Community & Architecture](#-developer-community--architecture)
 - [Features & System Highlights](#-features--system-highlights)
@@ -49,24 +52,75 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 | Resource | Description | URL |
 | :--- | :--- | :--- |
 | **Official Production Deployment** | Live web application running on Vercel Edge CDN | [https://jiga-list.vercel.app/](https://jiga-list.vercel.app/) |
-| **Developer Documentation Hub** | Architecture, schemas, and contributor guide | [https://jiga-list.vercel.app/docs?tab=developers](https://jiga-list.vercel.app/docs?tab=developers) |
+| **Developer Documentation Hub** | Architecture, schemas, deployment, and contributor guide | [https://jiga-list.vercel.app/docs?tab=developers](https://jiga-list.vercel.app/docs?tab=developers) |
 | **Community Contribution Portal** | Pre-formatted GitHub Issue generators | [https://jiga-list.vercel.app/docs?tab=contribute](https://jiga-list.vercel.app/docs?tab=contribute) |
 | **Safety & Adblocking Guide** | Safe browsing best practices & recommended filters | [https://jiga-list.vercel.app/docs?tab=security](https://jiga-list.vercel.app/docs?tab=security) |
 | **Official GitHub Repository** | Source code, issue tracker, and discussions | [https://github.com/rthaithem/jiga-list](https://github.com/rthaithem/jiga-list) |
 
 ---
 
-## 🚀 1-Click Deployment to Vercel
+## 🚀 Deployment Guides
 
-You can deploy your own instance of Jiga List to Vercel in seconds with zero configuration:
+Jiga List requires **no database, no backend server, and no environment secrets**. You can deploy it for free to any static hosting provider or CDN edge network.
+
+### Option A: Deploy to Vercel (Recommended · 1-Click)
+
+The fastest and easiest way to deploy Jiga List is with Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Frthaithem%2Fjiga-list)
 
-### Deployment Steps:
-1. Click the **Deploy with Vercel** button above (or [Fork this repository](https://github.com/rthaithem/jiga-list/fork)).
-2. Select your GitHub account and repository name.
-3. Click **Create** — Vercel will automatically run `npm run build` and publish your site with global edge caching.
-4. **No Environment Variables or Database setup required!**
+1. Click the **Deploy with Vercel** button above (or [Fork this repository](https://github.com/rthaithem/jiga-list/fork) first).
+2. Choose your repository name on GitHub and click **Create**.
+3. Vercel automatically detects Next.js, executes `npm run build`, and distributes the application globally.
+4. Done! Zero environment configuration needed.
+
+---
+
+### Option B: Deploy to Cloudflare Pages (Global Edge CDN)
+
+Cloudflare Pages provides blazing-fast edge performance with 100% free hosting and unlimited bandwidth.
+
+#### Method 1: Git Integration via Cloudflare Dashboard (Recommended)
+1. Fork or push this repository to your GitHub/GitLab account.
+2. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/) and navigate to **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
+3. Select your `jiga-list` repository.
+4. In the **Build settings** section, configure:
+   - **Framework preset:** `None` (or `Next.js Static HTML Export`)
+   - **Build command:** `npm run build`
+   - **Build output directory:** `out`
+5. In **Environment variables**, add:
+   - Variable name: `NEXT_OUTPUT`
+   - Value: `export`
+6. Click **Save and Deploy**. Cloudflare will build the static export and deploy it instantly across 300+ edge locations!
+
+#### Method 2: Direct CLI Deployment with Wrangler
+If you prefer building locally or in custom CI pipelines:
+```bash
+# 1. Build the static export
+NEXT_OUTPUT=export npm run build
+
+# 2. Deploy the ./out folder to Cloudflare Pages
+npx wrangler pages deploy out --project-name=jiga-list
+```
+
+---
+
+### Option C: Deploy to GitHub Pages (Automated via GitHub Actions)
+
+You can host Jiga List completely free directly inside your GitHub repository using **GitHub Pages** and **GitHub Actions**.
+
+This repository comes pre-configured with `.github/workflows/deploy-pages.yml` ready to run out of the box!
+
+#### Setup Steps:
+1. [Fork this repository](https://github.com/rthaithem/jiga-list/fork) to your GitHub account.
+2. In your repository on GitHub, go to **Settings** > **Pages**.
+3. Under **Build and deployment** > **Source**, select **GitHub Actions** from the dropdown.
+4. *(Optional — only if using a project subpath like `https://<username>.github.io/<repo>/`)*:
+   - If your GitHub Pages site is not at the root domain, set the base path in `Settings` > `Secrets and variables` > `Actions` > `Variables`:
+     - Name: `NEXT_PUBLIC_BASE_PATH`
+     - Value: `/<your-repo-name>` (e.g. `/jiga-list`)
+5. Go to the **Actions** tab, select the **Deploy to GitHub Pages** workflow, and click **Run workflow** (or simply make any commit to `main`).
+6. GitHub will build the static export and deploy your site to `https://<username>.github.io/<repo-name>/`.
 
 ---
 
@@ -187,13 +241,11 @@ npm run start
 
 ### Static HTML Export (GitHub Pages / Cloudflare Pages)
 
-To export pure static files without a Node.js runtime, set `output: "export"` in `next.config.mjs` and execute:
+To export pure static HTML files to the `./out` directory:
 
 ```bash
-npm run build
+NEXT_OUTPUT=export npm run build
 ```
-
-The static HTML and assets will be generated in `./out`.
 
 ---
 
@@ -245,6 +297,9 @@ Push your branch and open a Pull Request to [rthaithem/jiga-list](https://github
 ## 📁 Project Structure
 
 ```
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml       # Ready-to-use GitHub Actions workflow for GitHub Pages
 ├── app/
 │   ├── category/[slug]/page.tsx   # Category view with filters & view toggles
 │   ├── docs/page.tsx              # Documentation, Developer Wiki & Issue generators

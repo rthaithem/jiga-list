@@ -10,6 +10,7 @@ import {
   BookOpen,
   Check,
   CheckCircle2,
+  Cloud,
   Code2,
   Copy,
   Cpu,
@@ -22,7 +23,9 @@ import {
   Globe,
   HelpCircle,
   Layers,
+  Rocket,
   Search,
+  Server,
   Shield,
   ShieldCheck,
   Sparkles,
@@ -201,6 +204,9 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
   // Developer tab helper states
   const [copiedDevSnippet, setCopiedDevSnippet] = React.useState(false);
   const [copiedConfigSnippet, setCopiedConfigSnippet] = React.useState(false);
+  const [copiedCloudflareSnippet, setCopiedCloudflareSnippet] = React.useState(false);
+  const [copiedGhPagesWorkflow, setCopiedGhPagesWorkflow] = React.useState(false);
+  const [deployPlatformTab, setDeployPlatformTab] = React.useState<"vercel" | "cloudflare" | "github">("vercel");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -988,10 +994,275 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                 <div className="mt-1 font-semibold text-foreground">npm run build</div>
               </div>
               <div className="rounded-lg border bg-muted/30 p-3">
-                <div className="text-muted-foreground text-[11px] font-sans">4. Run production server</div>
-                <div className="mt-1 font-semibold text-foreground">npm run start</div>
+                <div className="text-muted-foreground text-[11px] font-sans">4. Run static export build</div>
+                <div className="mt-1 font-semibold text-foreground">NEXT_OUTPUT=export npm run build</div>
               </div>
             </div>
+          </div>
+
+          {/* Step 4: Free Hosting & Deployment (Vercel, Cloudflare, GitHub Pages) */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Rocket className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">
+                  4. Free Hosting &amp; Deployment Guides
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Host Jiga List with 100% free edge distribution on Vercel, Cloudflare Pages, or GitHub Pages.
+                </p>
+              </div>
+            </div>
+
+            {/* Platform Selector Buttons */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
+              <button
+                type="button"
+                onClick={() => setDeployPlatformTab("vercel")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  deployPlatformTab === "vercel"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Zap className="h-3.5 w-3.5" />
+                Vercel (1-Click)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDeployPlatformTab("cloudflare")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  deployPlatformTab === "cloudflare"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Cloud className="h-3.5 w-3.5" />
+                Cloudflare Pages
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDeployPlatformTab("github")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  deployPlatformTab === "github"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Github className="h-3.5 w-3.5" />
+                GitHub Pages
+              </button>
+            </div>
+
+            {/* Tab A: Vercel */}
+            {deployPlatformTab === "vercel" && (
+              <div className="space-y-3.5 pt-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
+                  <div>
+                    <span className="text-xs font-semibold text-foreground">One-Click Automatic Deployment</span>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      Vercel automatically handles type-checking, image optimization, and global edge CDN caching.
+                    </p>
+                  </div>
+                  <Button asChild size="sm" className="gap-2 shrink-0 text-xs">
+                    <a
+                      href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Frthaithem%2Fjiga-list"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Zap className="h-3.5 w-3.5 fill-current" />
+                      Deploy with Vercel
+                    </a>
+                  </Button>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-muted-foreground list-decimal pl-5">
+                  <li>Click <strong>Deploy with Vercel</strong> or import your forked repository.</li>
+                  <li>Framework preset will automatically be set to <strong>Next.js</strong>.</li>
+                  <li>Leave all environment variables empty — no database or secret keys needed!</li>
+                  <li>Click <strong>Deploy</strong> to go live in under 60 seconds.</li>
+                </div>
+              </div>
+            )}
+
+            {/* Tab B: Cloudflare Pages */}
+            {deployPlatformTab === "cloudflare" && (
+              <div className="space-y-3.5 pt-1">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Cloudflare Pages serves your static HTML directly from 300+ data centers worldwide with zero bandwidth charges.
+                </p>
+
+                <div className="rounded-lg border bg-muted/30 p-3.5 space-y-2">
+                  <span className="text-xs font-semibold text-foreground">Cloudflare Dashboard Build Settings:</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs pt-1">
+                    <div className="rounded border bg-background/80 p-2">
+                      <div className="text-[10px] font-sans text-muted-foreground">Framework Preset</div>
+                      <div className="font-semibold text-foreground">None</div>
+                    </div>
+                    <div className="rounded border bg-background/80 p-2">
+                      <div className="text-[10px] font-sans text-muted-foreground">Build Command</div>
+                      <div className="font-semibold text-foreground">npm run build</div>
+                    </div>
+                    <div className="rounded border bg-background/80 p-2">
+                      <div className="text-[10px] font-sans text-muted-foreground">Output Directory</div>
+                      <div className="font-semibold text-foreground">out</div>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Environment Variable: <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">NEXT_OUTPUT = export</code>
+                  </div>
+                </div>
+
+                {/* CLI Command */}
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                    <span>Deploy via Wrangler CLI:</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cmd = "NEXT_OUTPUT=export npm run build && npx wrangler pages deploy out --project-name=jiga-list";
+                        navigator.clipboard.writeText(cmd);
+                        setCopiedCloudflareSnippet(true);
+                        setTimeout(() => setCopiedCloudflareSnippet(false), 2000);
+                      }}
+                      className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                    >
+                      {copiedCloudflareSnippet ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          Copy CLI Command
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+                    NEXT_OUTPUT=export npm run build &amp;&amp; npx wrangler pages deploy out --project-name=jiga-list
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {/* Tab C: GitHub Pages */}
+            {deployPlatformTab === "github" && (
+              <div className="space-y-3.5 pt-1">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Deploy directly from your repository on GitHub using GitHub Actions. The workflow file <code className="font-mono rounded bg-muted px-1.5 py-0.5 text-foreground">.github/workflows/deploy-pages.yml</code> is already included in this repository.
+                </p>
+
+                <div className="space-y-1.5 text-xs text-muted-foreground list-decimal pl-5">
+                  <li>In your GitHub repo, go to <strong>Settings</strong> &gt; <strong>Pages</strong>.</li>
+                  <li>Under <strong>Build and deployment</strong> &gt; <strong>Source</strong>, choose <strong>GitHub Actions</strong>.</li>
+                  <li>
+                    <em>(Subpath note)</em>: If hosting at <code className="font-mono text-[11px]">https://&lt;user&gt;.github.io/&lt;repo&gt;/</code>, add repository variable <code className="font-mono text-[11px]">NEXT_PUBLIC_BASE_PATH = /&lt;repo&gt;</code> in Settings &gt; Secrets and variables &gt; Actions.
+                  </li>
+                  <li>Push a commit or trigger the workflow under the <strong>Actions</strong> tab to deploy automatically!</li>
+                </div>
+
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                    <span>.github/workflows/deploy-pages.yml</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const workflow = `name: Deploy to GitHub Pages
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/configure-pages@v5
+      - run: npm install
+      - env:
+          NEXT_OUTPUT: export
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/deploy-pages@v4`;
+                        navigator.clipboard.writeText(workflow);
+                        setCopiedGhPagesWorkflow(true);
+                        setTimeout(() => setCopiedGhPagesWorkflow(false), 2000);
+                      }}
+                      className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                    >
+                      {copiedGhPagesWorkflow ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-500" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          Copy Workflow
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <pre className="max-h-48 overflow-y-auto whitespace-pre font-mono text-[11px] text-foreground/90">
+{`name: Deploy to GitHub Pages
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/configure-pages@v5
+      - run: npm install
+      - env:
+          NEXT_OUTPUT: export
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/deploy-pages@v4`}
+                  </pre>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
