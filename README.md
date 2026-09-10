@@ -273,13 +273,14 @@ To add a new site, append an entry to the `resources` array:
 
 ```typescript
 {
-  id: "movies-braflix",
+  id: "media-braflix",
   title: "Braflix",
   url: "https://braflix.gd",
-  category: "movies",
+  categories: ["movies-tv-anime"],
   description: "Clean streaming interface with multi-server auto-failover and subbed/dubbed audio tracks.",
+  tags: ["streaming", "movies", "tv", "hd"],
   flags: ["recommended", "free", "no-ads", "verified"],
-  mirrors: ["https://braflix.st"],
+  mirrors: [{ label: "Mirror 1", url: "https://braflix.st" }],
 },
 ```
 

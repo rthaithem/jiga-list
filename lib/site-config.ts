@@ -1,6 +1,6 @@
 export const SITE_CONFIG = {
   name: "Jiga List",
-  description: "A lightning-fast, database-less directory & wiki for high-quality streaming websites, Android apps, and adblockers.",
+  description: "The ultimate community-curated wiki & open directory of verified free tools, AI, adblockers, streaming, educational courses, and open-source software.",
   url: "https://jigalist.pages.dev",
   author: "rthaithem",
   githubRepo: "rthaithem/jiga-list",

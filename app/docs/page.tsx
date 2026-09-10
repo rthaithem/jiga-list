@@ -112,7 +112,7 @@ function DocsContent() {
   // Form 1: Submit Site
   const [siteTitle, setSiteTitle] = React.useState("");
   const [siteUrl, setSiteUrl] = React.useState("");
-  const [siteCategory, setSiteCategory] = React.useState("movies");
+  const [siteCategory, setSiteCategory] = React.useState("wiki");
   const [siteDescription, setSiteDescription] = React.useState("");
   const [siteFlags, setSiteFlags] = React.useState("Free, No Ads");
   const [copiedSite, setCopiedSite] = React.useState(false);
@@ -908,13 +908,13 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                   type="button"
                   onClick={() => {
                     const snip = `{
-  id: "movies-braflix",
+  id: "media-braflix",
   title: "Braflix",
   url: "https://braflix.gd",
-  category: "movies",
+  categories: ["movies-tv-anime"],
   description: "Clean streaming interface with multi-server auto-failover and subbed/dubbed audio tracks.",
   flags: ["recommended", "free", "no-ads", "verified"],
-  mirrors: ["https://braflix.st"],
+  mirrors: [{ label: "Mirror 1", url: "https://braflix.st" }],
 },`;
                     navigator.clipboard.writeText(snip);
                     setCopiedDevSnippet(true);
@@ -937,13 +937,13 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
               </div>
               <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
 {`{
-  id: "movies-braflix",
+  id: "media-braflix",
   title: "Braflix",
   url: "https://braflix.gd",
-  category: "movies",
+  categories: ["movies-tv-anime"],
   description: "Clean streaming interface with multi-server auto-failover and subbed/dubbed audio tracks.",
   flags: ["recommended", "free", "no-ads", "verified"],
-  mirrors: ["https://braflix.st"],
+  mirrors: [{ label: "Mirror 1", url: "https://braflix.st" }],
 }`}
               </pre>
             </div>

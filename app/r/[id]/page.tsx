@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Flag, Globe } from "lucide-react";
+import { ArrowLeft, ExternalLink, Flag, Globe, Home, ChevronRight } from "lucide-react";
 
 import { resources } from "@/data/resources";
 import { categories } from "@/data/categories";
@@ -11,6 +11,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 interface ResourcePageProps {
   params: { id: string };
@@ -25,9 +26,30 @@ export function generateMetadata({
 }: ResourcePageProps): Metadata {
   const resource = findResource(params.id);
   if (!resource) return {};
+
+  const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");
+  const pageUrl = `${siteUrl}/r/${resource.id}`;
+  const title = `${resource.title} — Free Online Tool & Verified Resource`;
+  const description = `${resource.title}: ${resource.description} Tags: ${resource.tags.join(", ")}.`;
+
   return {
-    title: resource.title,
-    description: resource.description,
+    title,
+    description,
+    alternates: {
+      canonical: pageUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: "website",
+      siteName: "Jiga List",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
   };
 }
 
@@ -41,18 +63,97 @@ export default function ResourcePage({ params }: ResourcePageProps) {
   const resource = findResource(params.id);
   if (!resource) notFound();
 
+  const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");
+  const primaryCategorySlug = resource.categories[0];
+  const primaryCategory = categories.find((c) => c.slug === primaryCategorySlug);
+
   const related = resources.filter(
     (r) =>
       r.id !== resource.id &&
       r.categories.some((c) => resource.categories.includes(c))
   );
 
+  const resourceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: resource.title,
+    url: resource.url,
+    description: resource.description,
+    applicationCategory: primaryCategory?.name ?? "Utility",
+    operatingSystem: "All",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Jiga List",
+      url: siteUrl,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      ...(primaryCategory
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: primaryCategory.name,
+              item: `${siteUrl}/category/${primaryCategory.slug}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: primaryCategory ? 3 : 2,
+        name: resource.title,
+        item: `${siteUrl}/r/${resource.id}`,
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(resourceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Link href="/" className="flex items-center gap-1 hover:text-foreground transition-colors">
+          <Home className="h-3 w-3" />
+          <span>Home</span>
+        </Link>
+        <ChevronRight className="h-3 w-3" />
+        {primaryCategory && (
+          <>
+            <Link href={`/category/${primaryCategory.slug}`} className="hover:text-foreground transition-colors">
+              {primaryCategory.name}
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+          </>
+        )}
+        <span className="font-medium text-foreground truncate max-w-[200px]">{resource.title}</span>
+      </nav>
+
       <Button variant="ghost" size="sm" asChild className="mb-6 gap-1.5 pl-2 text-muted-foreground">
-        <Link href="/">
+        <Link href={primaryCategory ? `/category/${primaryCategory.slug}` : "/"}>
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Back to {primaryCategory ? primaryCategory.name : "all"}
         </Link>
       </Button>
 
@@ -62,7 +163,7 @@ export default function ResourcePage({ params }: ResourcePageProps) {
             <CardContent className="flex flex-col gap-4 p-0">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">
                     {resource.title}
                   </h1>
                   <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
@@ -144,7 +245,7 @@ export default function ResourcePage({ params }: ResourcePageProps) {
             <Card className="mt-4 p-6">
               <CardContent className="p-0">
                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Mirrors
+                  Verified Alternative Mirrors
                 </h2>
                 <div className="flex flex-col gap-2">
                   {resource.mirrors.map((mirror) => (

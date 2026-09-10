@@ -1,6 +1,6 @@
 {
   "name": "Jiga List",
-  "description": "A lightning-fast, database-less directory of streaming sites, tools, adblockers and Android apps. Community-curated and always free.",
+  "description": "The ultimate community-curated wiki & open directory of verified free tools, AI, adblockers, streaming, educational courses, and open-source software.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
