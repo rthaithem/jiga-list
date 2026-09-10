@@ -1,0 +1,26 @@
+# Cloudflare Pages Custom Headers for Jiga List
+
+# Cache static Next.js assets with immutable content-hash (1 year)
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache static icons and metadata (30 days)
+/*.png
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+/*.ico
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+/*.svg
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
+/*.xml
+  Cache-Control: public, max-age=86400, stale-while-revalidate=3600
+/manifest.json
+  Cache-Control: public, max-age=86400, stale-while-revalidate=3600
+/robots.txt
+  Cache-Control: public, max-age=86400
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+
+# Security & Privacy Headers for all responses
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

@@ -25,15 +25,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "@radix-ui/react-dialog",
-      "@radix-ui/react-dropdown-menu",
-      "@radix-ui/react-tooltip",
-      "@radix-ui/react-scroll-area",
-      "@radix-ui/react-separator",
-      "@radix-ui/react-slot",
-    ],
+    optimizePackageImports: ["lucide-react"],
   },
   compiler: {
     removeConsole:

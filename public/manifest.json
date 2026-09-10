@@ -1,0 +1,16 @@
+{
+  "name": "Jiga List",
+  "short_name": "Jiga List",
+  "description": "The Free Community Wiki & Master Directory of Open Tools, AI, Media & Privacy",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

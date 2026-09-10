@@ -22,51 +22,27 @@ interface HomeStatsProps {
 }
 
 export function HomeStats({ resourcesCount, categoriesCount }: HomeStatsProps) {
-  // 1. Real Contributors from GitHub API (default to 1, the actual real number on rthaithem/jiga-list)
-  const [contributorsCount, setContributorsCount] = React.useState<number>(1);
-  const [hasFetchedContributors, setHasFetchedContributors] = React.useState(false);
+  // Real verified contributors (rthaithem + community)
+  const contributorsCount = 1;
 
-  // 2. Real browser load / render measurement (Navigation Timing API)
+  // Real browser load measurement (Navigation Timing API)
   const [loadTimeMs, setLoadTimeMs] = React.useState<string>("<50ms");
 
   React.useEffect(() => {
-    // Measure real client page load time
-    const timer = setTimeout(() => {
-      try {
-        if (typeof window !== "undefined" && window.performance) {
-          const navEntries = performance.getEntriesByType("navigation");
-          if (navEntries && navEntries.length > 0) {
-            const nav = navEntries[0] as PerformanceNavigationTiming;
-            const duration = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
-            if (duration > 0 && duration < 5000) {
-              setLoadTimeMs(`${duration}ms`);
-            }
+    try {
+      if (typeof window !== "undefined" && window.performance) {
+        const navEntries = performance.getEntriesByType("navigation");
+        if (navEntries && navEntries.length > 0) {
+          const nav = navEntries[0] as PerformanceNavigationTiming;
+          const duration = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
+          if (duration > 0 && duration < 5000) {
+            setLoadTimeMs(`${duration}ms`);
           }
         }
-      } catch {
-        // fallback
       }
-
-      // Fetch live contributors count from GitHub repository in idle state
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(() => {
-          fetch(SITE_CONFIG.githubContributorsApi)
-            .then((res) => {
-              if (res.ok) return res.json();
-              throw new Error("GitHub rate limit or error");
-            })
-            .then((data) => {
-              if (Array.isArray(data) && data.length > 0) {
-                setContributorsCount(data.length);
-                setHasFetchedContributors(true);
-              }
-            })
-            .catch(() => {});
-        });
-      }
-    }, 2500);
-
-    return () => clearTimeout(timer);
+    } catch {
+      // fallback
+    }
   }, []);
 
   // Total static HTML routes generated: resources + categories + static pages (home, favorites, docs, settings)
