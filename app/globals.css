@@ -153,4 +153,8 @@
   .font-mono-condensed {
     font-feature-settings: "ss01", "cv01";
   }
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 120px;
+  }
 }

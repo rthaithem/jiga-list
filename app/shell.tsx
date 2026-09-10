@@ -2,11 +2,17 @@
 
 import * as React from "react";
 
+import dynamic from "next/dynamic";
+
 import { Header } from "@/components/header";
-import { SearchPalette } from "@/components/search-palette";
 import { Sidebar } from "@/components/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { applyAccentToDocument } from "@/lib/settings";
+
+const SearchPalette = dynamic(
+  () => import("@/components/search-palette").then((mod) => mod.SearchPalette),
+  { ssr: false }
+);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = React.useState(false);
@@ -45,7 +51,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Header onSearchClick={() => setSearchOpen(true)} />
           <main className="flex-1">{children}</main>
         </div>
-        <SearchPalette open={searchOpen} onOpenChange={setSearchOpen} />
+        {searchOpen && (
+          <SearchPalette open={searchOpen} onOpenChange={setSearchOpen} />
+        )}
       </div>
     </TooltipProvider>
   );

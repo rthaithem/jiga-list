@@ -141,7 +141,7 @@ export function ResourceCard({
   }
 
   return (
-    <div className="group relative flex flex-col gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/30">
+    <div className="group relative flex flex-col gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/30 content-auto">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -184,15 +184,15 @@ export function ResourceCard({
         {resource.flags.map((flag) => {
           const meta = FLAG_META[flag];
           return (
-            <Tooltip key={flag}>
-              <TooltipTrigger asChild>
-                <Badge variant={meta.variant} className="gap-1">
-                  {meta.icon}
-                  {meta.label}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>Status: {meta.label}</TooltipContent>
-            </Tooltip>
+            <Badge
+              key={flag}
+              variant={meta.variant}
+              className="gap-1"
+              title={`Status: ${meta.label}`}
+            >
+              {meta.icon}
+              {meta.label}
+            </Badge>
           );
         })}
         {resource.tags.slice(0, 3).map((tag) => (
@@ -234,8 +234,9 @@ export function ResourceCard({
 }
 
 function MirrorsDialog({ resource }: { resource: Resource }) {
+  const [open, setOpen] = React.useState(false);
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           size="sm"
@@ -249,54 +250,56 @@ function MirrorsDialog({ resource }: { resource: Resource }) {
           </span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{resource.title} — Mirrors</DialogTitle>
-          <DialogDescription>
-            Alternate domains for this resource. Mirrors may have different
-            uptime, ads or geo-restrictions.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-2">
-          {resource.mirrors?.map((mirror) => (
-            <div
-              key={mirror.url}
-              className="flex items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2"
-            >
-              <div className="flex min-w-0 flex-col">
-                <span className="text-sm font-medium">{mirror.label}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {new URL(mirror.url).hostname}
-                </span>
+      {open && (
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{resource.title} — Mirrors</DialogTitle>
+            <DialogDescription>
+              Alternate domains for this resource. Mirrors may have different
+              uptime, ads or geo-restrictions.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            {resource.mirrors?.map((mirror) => (
+              <div
+                key={mirror.url}
+                className="flex items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2"
+              >
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-sm font-medium">{mirror.label}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {new URL(mirror.url).hostname}
+                  </span>
+                </div>
+                <Button size="sm" variant="outline" asChild>
+                  <a
+                    href={mirror.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="gap-1.5"
+                  >
+                    <Link2 className="h-3.5 w-3.5" />
+                    Open
+                  </a>
+                </Button>
               </div>
-              <Button size="sm" variant="outline" asChild>
-                <a
-                  href={mirror.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="gap-1.5"
-                >
-                  <Link2 className="h-3.5 w-3.5" />
-                  Open
-                </a>
-              </Button>
-            </div>
-          ))}
-        </div>
-        <DialogFooter className="gap-2">
-          <Button size="sm" asChild>
-            <a
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="gap-1.5"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Main site
-            </a>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+            ))}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button size="sm" asChild>
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="gap-1.5"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Main site
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      )}
     </Dialog>
   );
 }
@@ -343,71 +346,73 @@ function ReportDialog({ resource }: { resource: Resource }) {
           Report
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-destructive">
-            <FlagIcon className="h-4 w-4" />
-            Report Resource Issue
-          </DialogTitle>
-          <DialogDescription>
-            Help keep Jiga List clean and working. This will prepare and open an issue on GitHub for maintainers to review.
-          </DialogDescription>
-        </DialogHeader>
+      {open && (
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <FlagIcon className="h-4 w-4" />
+              Report Resource Issue
+            </DialogTitle>
+            <DialogDescription>
+              Help keep Jiga List clean and working. This will prepare and open an issue on GitHub for maintainers to review.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-3 py-2">
-          <div className="rounded-md bg-muted/50 p-2.5 font-mono text-xs">
-            <span className="font-semibold text-foreground">{resource.title}</span>
-            <div className="truncate text-muted-foreground">{resource.url}</div>
+          <div className="space-y-3 py-2">
+            <div className="rounded-md bg-muted/50 p-2.5 font-mono text-xs">
+              <span className="font-semibold text-foreground">{resource.title}</span>
+              <div className="truncate text-muted-foreground">{resource.url}</div>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium">Issue Reason</label>
+              <select
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="broken">Dead / Offline Link (Site not loading or domain seized)</option>
+                <option value="malware">Malicious redirects / Popups / Deceptive downloads</option>
+                <option value="paywall">Introduced paid paywall / No longer free</option>
+                <option value="copyright">DMCA or Copyright infringement</option>
+                <option value="other">Other problem</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium">Additional Notes (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. 502 error or redirects to scam"
+                value={details}
+                onChange={(e) => setDetails(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium">Issue Reason</label>
-            <select
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setOpen(false)}
             >
-              <option value="broken">Dead / Offline Link (Site not loading or domain seized)</option>
-              <option value="malware">Malicious redirects / Popups / Deceptive downloads</option>
-              <option value="paywall">Introduced paid paywall / No longer free</option>
-              <option value="copyright">DMCA or Copyright infringement</option>
-              <option value="other">Other problem</option>
-            </select>
-          </div>
+              <Link href={`/docs?tab=report-issue&resource=${resource.id}`}>
+                Open full report page
+              </Link>
+            </Button>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium">Additional Notes (Optional)</label>
-            <input
-              type="text"
-              placeholder="e.g. 502 error or redirects to scam"
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => setOpen(false)}
-          >
-            <Link href={`/docs?tab=report-issue&resource=${resource.id}`}>
-              Open full report page
-            </Link>
-          </Button>
-
-          <Button asChild variant="destructive" size="sm" className="gap-1.5 text-xs">
-            <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
-              <Github className="h-3.5 w-3.5" />
-              Submit Report on GitHub
-            </a>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+            <Button asChild variant="destructive" size="sm" className="gap-1.5 text-xs">
+              <a href={githubIssueUrl} target="_blank" rel="noopener noreferrer">
+                <Github className="h-3.5 w-3.5" />
+                Submit Report on GitHub
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      )}
     </Dialog>
   );
 }

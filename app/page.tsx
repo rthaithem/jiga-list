@@ -6,7 +6,7 @@ import { resources } from "@/data/resources";
 import { getCategoryIcon } from "@/components/category-icon";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ResourceCard } from "@/components/resource-card";
+import { FeaturedResources } from "@/components/featured-resources";
 import { HomeStats } from "@/components/home-stats";
 
 export default function HomePage() {
@@ -105,11 +105,7 @@ export default function HomePage() {
             Explore Wiki Resources <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          {featured.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
+        <FeaturedResources resources={featured} />
       </section>
     </div>
   );

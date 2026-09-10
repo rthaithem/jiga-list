@@ -61,13 +61,20 @@ const options: IFuseOptions<SearchEntry> = {
   ],
 };
 
-export const fuse = new Fuse(SEARCH_INDEX, options);
+let fuseInstance: Fuse<SearchEntry> | null = null;
+
+export function getFuse(): Fuse<SearchEntry> {
+  if (!fuseInstance) {
+    fuseInstance = new Fuse(SEARCH_INDEX, options);
+  }
+  return fuseInstance;
+}
 
 export function search(query: string, limit = 12): SearchEntry[] {
   if (!query.trim()) {
     return SEARCH_INDEX.slice(0, limit);
   }
-  return fuse
+  return getFuse()
     .search(query, { limit })
     .map((result) => result.item);
 }

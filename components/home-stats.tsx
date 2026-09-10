@@ -31,36 +31,42 @@ export function HomeStats({ resourcesCount, categoriesCount }: HomeStatsProps) {
 
   React.useEffect(() => {
     // Measure real client page load time
-    try {
-      if (typeof window !== "undefined" && window.performance) {
-        const navEntries = performance.getEntriesByType("navigation");
-        if (navEntries && navEntries.length > 0) {
-          const nav = navEntries[0] as PerformanceNavigationTiming;
-          const duration = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
-          if (duration > 0 && duration < 5000) {
-            setLoadTimeMs(`${duration}ms`);
+    const timer = setTimeout(() => {
+      try {
+        if (typeof window !== "undefined" && window.performance) {
+          const navEntries = performance.getEntriesByType("navigation");
+          if (navEntries && navEntries.length > 0) {
+            const nav = navEntries[0] as PerformanceNavigationTiming;
+            const duration = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
+            if (duration > 0 && duration < 5000) {
+              setLoadTimeMs(`${duration}ms`);
+            }
           }
         }
+      } catch {
+        // fallback
       }
-    } catch {
-      // fallback
-    }
 
-    // Fetch live contributors count from GitHub repository
-    fetch(SITE_CONFIG.githubContributorsApi)
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("GitHub rate limit or error");
-      })
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setContributorsCount(data.length);
-          setHasFetchedContributors(true);
-        }
-      })
-      .catch(() => {
-        // Keeps real default: 1 contributor (@rthaithem)
-      });
+      // Fetch live contributors count from GitHub repository in idle state
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => {
+          fetch(SITE_CONFIG.githubContributorsApi)
+            .then((res) => {
+              if (res.ok) return res.json();
+              throw new Error("GitHub rate limit or error");
+            })
+            .then((data) => {
+              if (Array.isArray(data) && data.length > 0) {
+                setContributorsCount(data.length);
+                setHasFetchedContributors(true);
+              }
+            })
+            .catch(() => {});
+        });
+      }
+    }, 2500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Total static HTML routes generated: resources + categories + static pages (home, favorites, docs, settings)
