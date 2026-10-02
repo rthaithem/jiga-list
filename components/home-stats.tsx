@@ -6,9 +6,7 @@ import {
   ArrowUpRight,
   BookOpen,
   ExternalLink,
-  Github,
   Globe,
-  Layers,
   Users,
   Zap,
 } from "lucide-react";
@@ -36,7 +34,7 @@ export function HomeStats({ resourcesCount, categoriesCount }: HomeStatsProps) {
           const nav = navEntries[0] as PerformanceNavigationTiming;
           const duration = Math.round(nav.domContentLoadedEventEnd - nav.startTime);
           if (duration > 0 && duration < 5000) {
-            setLoadTimeMs(`${duration}ms`);
+            requestAnimationFrame(() => setLoadTimeMs(`${duration}ms`));
           }
         }
       }

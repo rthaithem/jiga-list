@@ -60,24 +60,44 @@ export function clearFavorites(): void {
   saveFavoriteIds([]);
 }
 
+const emptyFavorites: string[] = [];
+let cachedRaw: string | null = null;
+let cachedIds: string[] = [];
+
+function getFavoritesSnapshot(): string[] {
+  if (typeof window === "undefined") return emptyFavorites;
+  const raw = localStorage.getItem(FAVORITES_STORAGE_KEY) ?? "";
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    cachedIds = getFavoriteIds();
+  }
+  return cachedIds;
+}
+
+function getFavoritesServerSnapshot(): string[] {
+  return emptyFavorites;
+}
+
+function subscribeFavorites(callback: () => void) {
+  window.addEventListener(FAVORITES_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(FAVORITES_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
 export function useFavorites() {
-  const [favoriteIds, setFavoriteIds] = React.useState<string[]>([]);
+  const favoriteIds = React.useSyncExternalStore(
+    subscribeFavorites,
+    getFavoritesSnapshot,
+    getFavoritesServerSnapshot
+  );
+
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    setFavoriteIds(getFavoriteIds());
-    setIsLoaded(true);
-
-    const handleUpdate = () => {
-      setFavoriteIds(getFavoriteIds());
-    };
-
-    window.addEventListener(FAVORITES_EVENT, handleUpdate);
-    window.addEventListener("storage", handleUpdate);
-    return () => {
-      window.removeEventListener(FAVORITES_EVENT, handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
-    };
+    queueMicrotask(() => setIsLoaded(true));
   }, []);
 
   const favoriteResources = React.useMemo(() => {

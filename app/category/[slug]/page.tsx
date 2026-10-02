@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,17 +15,18 @@ import { Badge } from "@/components/ui/badge";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 interface CategoryPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
-}: CategoryPageProps): Metadata {
-  const category = getCategory(params.slug);
+}: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const category = getCategory(slug);
   if (!category) return {};
 
   const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");
@@ -55,12 +57,15 @@ export function generateMetadata({
 
 export const dynamicParams = false;
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const category = getCategory(params.slug);
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = await params;
+  const category = getCategory(slug);
   if (!category) notFound();
 
   const resources = resourcesForCategory(category.slug);
-  const Icon = getCategoryIcon(category.icon);
+  const iconElement = React.createElement(getCategoryIcon(category.icon), {
+    className: "h-6 w-6",
+  });
   const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");
 
   // Structured Data for GEO & AI Search engines
@@ -119,7 +124,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       <header className="mb-6">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon className="h-6 w-6" />
+            {iconElement}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">

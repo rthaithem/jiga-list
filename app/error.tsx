@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,6 +12,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     // Log client errors in non-production environments
     console.error("App boundary caught error:", error);
@@ -33,9 +36,7 @@ export default function Error({
         <Button
           variant="outline"
           onClick={() => {
-            if (typeof window !== "undefined") {
-              window.location.href = "/";
-            }
+            router.push("/");
           }}
         >
           Go to home

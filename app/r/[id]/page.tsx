@@ -14,17 +14,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 interface ResourcePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export function generateStaticParams() {
   return resources.map((resource) => ({ id: resource.id }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
-}: ResourcePageProps): Metadata {
-  const resource = findResource(params.id);
+}: ResourcePageProps): Promise<Metadata> {
+  const { id } = await params;
+  const resource = findResource(id);
   if (!resource) return {};
 
   const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");
@@ -59,8 +60,9 @@ function findResource(id: string): Resource | undefined {
   return resources.find((r) => r.id === id);
 }
 
-export default function ResourcePage({ params }: ResourcePageProps) {
-  const resource = findResource(params.id);
+export default async function ResourcePage({ params }: ResourcePageProps) {
+  const { id } = await params;
+  const resource = findResource(id);
   if (!resource) notFound();
 
   const siteUrl = SITE_CONFIG.url.replace(/\/$/, "");

@@ -91,22 +91,25 @@ function DocsContent() {
   // Sync state if query params change
   React.useEffect(() => {
     const tabParam = searchParams.get("tab");
-    if (tabParam === "usage" || tabParam === "guide") {
-      setActiveSection("guide");
-    } else if (tabParam === "security") {
-      setActiveSection("security");
-    } else if (tabParam === "developers" || tabParam === "dev" || tabParam === "code") {
-      setActiveSection("developers");
-    } else if (tabParam === "suggest-category") {
-      setActiveSection("contribute");
-      setContributeType("category");
-    } else if (tabParam === "report-issue" || searchParams.get("resource")) {
-      setActiveSection("contribute");
-      setContributeType("report");
-    } else if (tabParam === "submit-site") {
-      setActiveSection("contribute");
-      setContributeType("site");
-    }
+    const resourceParam = searchParams.get("resource");
+    queueMicrotask(() => {
+      if (tabParam === "usage" || tabParam === "guide") {
+        setActiveSection("guide");
+      } else if (tabParam === "security") {
+        setActiveSection("security");
+      } else if (tabParam === "developers" || tabParam === "dev" || tabParam === "code") {
+        setActiveSection("developers");
+      } else if (tabParam === "suggest-category") {
+        setActiveSection("contribute");
+        setContributeType("category");
+      } else if (tabParam === "report-issue" || resourceParam) {
+        setActiveSection("contribute");
+        setContributeType("report");
+      } else if (tabParam === "submit-site") {
+        setActiveSection("contribute");
+        setContributeType("site");
+      }
+    });
   }, [searchParams]);
 
   // Form 1: Submit Site
@@ -178,10 +181,12 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
 
   React.useEffect(() => {
     if (prefillResource) {
-      setRepTitle(prefillResource.title);
-      setRepUrl(prefillResource.url);
-      setContributeType("report");
-      setActiveSection("contribute");
+      queueMicrotask(() => {
+        setRepTitle(prefillResource.title);
+        setRepUrl(prefillResource.url);
+        setContributeType("report");
+        setActiveSection("contribute");
+      });
     }
   }, [prefillResource]);
 
