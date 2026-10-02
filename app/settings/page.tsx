@@ -14,8 +14,6 @@ import {
   Sun,
   Trash2,
   CheckCircle2,
-  ExternalLink,
-  ShieldCheck,
   BookOpen,
 } from "lucide-react";
 
@@ -24,12 +22,10 @@ import {
   ACCENT_OPTIONS,
   getStorageUsage,
   clearSiteCache,
-  type AccentColor,
 } from "@/lib/settings";
 import { useFavorites } from "@/lib/favorites";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -55,7 +51,9 @@ export default function SettingsPage() {
   const [clearedSuccess, setClearedSuccess] = React.useState(false);
 
   const refreshStorage = React.useCallback(() => {
-    setStorageInfo(getStorageUsage());
+    queueMicrotask(() => {
+      setStorageInfo(getStorageUsage());
+    });
   }, []);
 
   React.useEffect(() => {

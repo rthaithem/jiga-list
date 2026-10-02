@@ -50,35 +50,32 @@ export function applyAccentToDocument(): void {
   document.documentElement.setAttribute("data-accent", accent);
 }
 
+function subscribeAccent(callback: () => void) {
+  window.addEventListener(ACCENT_EVENT, callback);
+  return () => window.removeEventListener(ACCENT_EVENT, callback);
+}
+
+function getAccentSnapshot(): AccentColor {
+  return getStoredAccent();
+}
+
+function getAccentServerSnapshot(): AccentColor {
+  return "cyan";
+}
+
 export function useAccent() {
-  const [accent, setAccent] = React.useState<AccentColor>(() => {
-    if (typeof window !== "undefined") {
-      return getStoredAccent();
-    }
-    return "cyan";
-  });
+  const accent = React.useSyncExternalStore(
+    subscribeAccent,
+    getAccentSnapshot,
+    getAccentServerSnapshot
+  );
 
   React.useEffect(() => {
-    const current = getStoredAccent();
-    setAccent(current);
-    document.documentElement.setAttribute("data-accent", current);
-
-    const onUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent<AccentColor>;
-      if (customEvent.detail) {
-        setAccent(customEvent.detail);
-      } else {
-        setAccent(getStoredAccent());
-      }
-    };
-
-    window.addEventListener(ACCENT_EVENT, onUpdate);
-    return () => window.removeEventListener(ACCENT_EVENT, onUpdate);
-  }, []);
+    document.documentElement.setAttribute("data-accent", accent);
+  }, [accent]);
 
   const changeAccent = React.useCallback((newAccent: AccentColor) => {
     setStoredAccent(newAccent);
-    setAccent(newAccent);
   }, []);
 
   return { accent, changeAccent, options: ACCENT_OPTIONS };
