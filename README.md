@@ -1,6 +1,6 @@
 # Jiga List ⚡
 
-A modern, lightning-fast, and database-less curated directory & wiki web application built with **Next.js 14 (App Router)**, **TypeScript**, **Tailwind CSS**, and **Shadcn/UI**.
+A modern, lightning-fast, and database-less curated directory & wiki web application built with **Next.js 16 (App Router)**, **React 19**, **TypeScript**, **Tailwind CSS**, and **Shadcn/UI**.
 
 Every resource is indexed at build time and served as static HTML (SSG) — **zero backend, zero database, zero tracking, and zero server costs**.
 
@@ -21,9 +21,9 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-14%2B%20App%20Router-black?style=flat-square&logo=next.js" alt="Next.js 14" />
+  <img src="https://img.shields.io/badge/Next.js-16%2B%20App%20Router-black?style=flat-square&logo=next.js" alt="Next.js 16" />
   <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-v3-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Search-Fuse.js-orange?style=flat-square" alt="Fuse.js" />
   <img src="https://img.shields.io/badge/License-MIT-emerald?style=flat-square" alt="License MIT" />
 </p>
@@ -232,8 +232,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 # Run strict ESLint verification
 npm run lint
 
-# Build production static bundle (SSG prerendering)
+# Build production bundle
 npm run build
+
+# Build static HTML export (SSG prerendering to ./out)
+npm run build:export
 
 # Start production server
 npm run start
