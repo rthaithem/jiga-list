@@ -52,6 +52,7 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 | Resource | Description | URL |
 | :--- | :--- | :--- |
 | **Official Production Deployment** | Live web application running on Cloudflare Pages Global Edge CDN | [https://jigalist.pages.dev/](https://jigalist.pages.dev/) |
+| **Model Context Protocol (MCP) Guide** | Setup guide for connecting AI assistants (Claude, Cursor, Windsurf, VS Code) | [https://jigalist.pages.dev/docs?tab=mcp](https://jigalist.pages.dev/docs?tab=mcp) |
 | **Developer Documentation Hub** | Architecture, schemas, deployment, and contributor guide | [https://jigalist.pages.dev/docs?tab=developers](https://jigalist.pages.dev/docs?tab=developers) |
 | **Community Contribution Portal** | Pre-formatted GitHub Issue generators | [https://jigalist.pages.dev/docs?tab=contribute](https://jigalist.pages.dev/docs?tab=contribute) |
 | **Safety & Adblocking Guide** | Safe browsing best practices & recommended filters | [https://jigalist.pages.dev/docs?tab=security](https://jigalist.pages.dev/docs?tab=security) |
