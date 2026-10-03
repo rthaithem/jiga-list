@@ -8,6 +8,7 @@ import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { applyAccentToDocument } from "@/lib/settings";
+import { registerWebMCP } from "@/lib/webmcp";
 
 const SearchPalette = dynamic(
   () => import("@/components/search-palette").then((mod) => mod.SearchPalette),
@@ -19,6 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     applyAccentToDocument();
+    registerWebMCP();
   }, []);
 
   React.useEffect(() => {

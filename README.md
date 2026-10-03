@@ -33,6 +33,8 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 ## 📑 Table of Contents
 
 - [Live Links](#-live-links)
+- [🤖 Model Context Protocol (MCP) & WebMCP Integration](#-model-context-protocol-mcp--webmcp-integration)
+
 - [Deployment Guides (Cloudflare Pages, Vercel, GitHub Pages)](#-deployment-guides)
   - [Option A: Deploy to Cloudflare Pages](#option-a-deploy-to-cloudflare-pages-global-edge-cdn)
   - [Option B: Deploy to Vercel](#option-b-deploy-to-vercel-recommended--1-click)
@@ -169,6 +171,23 @@ To organize incoming community tickets on your repository, create the following 
 | `category-proposal` | `#1d76db` | Suggestions for new sections or topics |
 | `broken-link` | `#d93f0b` | Incident reports for offline or deceptive links |
 | `enhancement` | `#a2eeef` | New features or UI improvements |
+
+---
+
+
+---
+
+## 🤖 Model Context Protocol (MCP) & WebMCP Integration
+
+Jiga List includes built-in support for both **Server-side MCP (HTTP JSON-RPC 2.0)** and **Client-side WebMCP (Browser Native)**. This allows AI assistants (Claude, Cursor, Copilot, ChatGPT, and custom AI agents) to query, search, and recommend curated tools, adblockers, streaming portals, and applications.
+
+### Quick Features:
+- **Server MCP Endpoint:** `/api/mcp` (HTTP / JSON-RPC 2.0)
+- **Client WebMCP Provider:** `window.webMcp`
+- **Exposed Tools:** `search_resources`, `list_categories`, `get_resource`, `get_category_resources`, `get_stats`, and `manage_favorites`.
+- **Zero Database / Zero Overhead:** Operates directly on typed in-memory data structures with `<1ms` response times.
+
+> 📖 **Full Specification:** See [docs/MCP.md](docs/MCP.md) for complete setup instructions and JSON-RPC protocol examples.
 
 ---
 
