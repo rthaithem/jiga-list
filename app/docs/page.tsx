@@ -879,10 +879,21 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
               </div>
             </div>
 
-            {/* Option A: Claude Desktop */}
+            {/* Notice regarding npm package & WebMCP */}
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-muted-foreground space-y-1">
+              <div className="font-semibold text-foreground flex items-center gap-1.5">
+                <AlertCircle className="h-4 w-4 text-amber-500 shrink-0" />
+                Integration Status &amp; Package Availability
+              </div>
+              <p>
+                Jiga List is a database-less static Web Application (SSG). Note that <code className="font-mono text-[11px] text-foreground">@jigalist/mcp-server</code> is a placeholder package name not published on npm. To connect your AI assistant, use standard MCP fetch connectors, local node custom MCP scripts, or query live web endpoints directly.
+              </p>
+            </div>
+
+            {/* Option A: Standard MCP Fetch Server */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-foreground">
-                <span>1. Claude Desktop Configuration (<code className="font-mono text-[11px]">claude_desktop_config.json</code>)</span>
+                <span>1. Standard MCP Fetch Connector (<code className="font-mono text-[11px]">claude_desktop_config.json</code>)</span>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
                 <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
@@ -892,9 +903,12 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                     onClick={() => {
                       const snip = `{
   "mcpServers": {
-    "jiga-list": {
+    "jiga-list-fetch": {
       "command": "npx",
-      "args": ["-y", "@jigalist/mcp-server"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
     }
   }
 }`;
@@ -920,9 +934,12 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                 <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
 {`{
   "mcpServers": {
-    "jiga-list": {
+    "jiga-list-fetch": {
       "command": "npx",
-      "args": ["-y", "@jigalist/mcp-server"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
     }
   }
 }`}
@@ -933,7 +950,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
             {/* Option B: Cursor / Windsurf / VSCode */}
             <div className="space-y-2 pt-2">
               <div className="flex items-center justify-between text-xs font-semibold text-foreground">
-                <span>2. Cursor / Windsurf / VS Code MCP Extension</span>
+                <span>2. Cursor / Windsurf / VS Code MCP Settings</span>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
                 <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
@@ -944,10 +961,13 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                       const snip = `{
   "mcp": {
     "servers": {
-      "jiga-list": {
+      "jiga-list-fetch": {
         "type": "command",
         "command": "npx",
-        "args": ["-y", "@jigalist/mcp-server"]
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-fetch"
+        ]
       }
     }
   }
@@ -975,10 +995,13 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
 {`{
   "mcp": {
     "servers": {
-      "jiga-list": {
+      "jiga-list-fetch": {
         "type": "command",
         "command": "npx",
-        "args": ["-y", "@jigalist/mcp-server"]
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-fetch"
+        ]
       }
     }
   }
@@ -987,18 +1010,18 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
               </div>
             </div>
 
-            {/* Option C: Direct CLI Command */}
+            {/* Option C: Direct Web & Local Repository Custom Server */}
             <div className="space-y-2 pt-2">
               <div className="flex items-center justify-between text-xs font-semibold text-foreground">
-                <span>3. Direct CLI Run / Testing</span>
+                <span>3. Direct Web Browser Access &amp; Local Repository MCP Server</span>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-3">
                 <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
-                  <span>Terminal</span>
+                  <span>Local Workspace / Web Access</span>
                   <button
                     type="button"
                     onClick={() => {
-                      const snip = "npx -y @jigalist/mcp-server";
+                      const snip = "https://jigalist.pages.dev/sitemap.xml";
                       navigator.clipboard.writeText(snip);
                       setCopiedMcpCli(true);
                       setTimeout(() => setCopiedMcpCli(false), 2000);
@@ -1013,13 +1036,13 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
                     ) : (
                       <>
                         <Copy className="h-3 w-3" />
-                        Copy Command
+                        Copy Sitemap URL
                       </>
                     )}
                   </button>
                 </div>
                 <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
-                  npx -y @jigalist/mcp-server
+                  https://jigalist.pages.dev/sitemap.xml
                 </pre>
               </div>
             </div>
