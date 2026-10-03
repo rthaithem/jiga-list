@@ -65,7 +65,7 @@ export default function DocsPage() {
   );
 }
 
-type MainSection = "contribute" | "guide" | "security" | "developers" | "mcp";
+type MainSection = "contribute" | "guide" | "security" | "developers";
 type ContributeType = "site" | "category" | "report";
 
 function DocsContent() {
@@ -78,7 +78,6 @@ function DocsContent() {
   const [activeSection, setActiveSection] = React.useState<MainSection>(() => {
     if (initialTab === "usage" || initialTab === "guide") return "guide";
     if (initialTab === "security") return "security";
-    if (initialTab === "mcp" || initialTab === "ai") return "mcp";
     if (initialTab === "developers" || initialTab === "dev" || initialTab === "code") return "developers";
     return "contribute";
   });
@@ -98,8 +97,6 @@ function DocsContent() {
         setActiveSection("guide");
       } else if (tabParam === "security") {
         setActiveSection("security");
-      } else if (tabParam === "mcp" || tabParam === "ai") {
-        setActiveSection("mcp");
       } else if (tabParam === "developers" || tabParam === "dev" || tabParam === "code") {
         setActiveSection("developers");
       } else if (tabParam === "suggest-category") {
@@ -770,138 +767,6 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
           )}
         </div>
       )}
-
-
-      {/* SECTION: MCP & AI INTEGRATION */}
-      {activeSection === "mcp" && (
-        <div className="space-y-6">
-          <div className="border-b border-border pb-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-semibold text-foreground">
-                Model Context Protocol (MCP) &amp; WebMCP Integration
-              </h2>
-              <Badge variant="outline" className="border-primary/40 text-primary text-[11px]">
-                AI Ecosystem Standard
-              </Badge>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Connect AI assistants (Claude, Cursor, Copilot, custom Agents) directly to Jiga List indexed resources.
-            </p>
-          </div>
-
-          {/* Overview Banner */}
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Cpu className="h-5 w-5" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-semibold text-foreground">How MCP &amp; WebMCP Serve Jiga List</h3>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Jiga List provides an open, standardized <strong>Model Context Protocol (MCP)</strong> endpoint and client-side <strong>WebMCP</strong> provider. This turns our static, zero-database directory into an instant, high-speed knowledge base for AI models without adding any backend or database complexity.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Integration Options Grid */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {/* Server MCP */}
-            <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Server className="h-4 w-4 text-primary" />
-                  <h4 className="text-sm font-semibold text-foreground">1. Server MCP Endpoint</h4>
-                </div>
-                <Badge variant="secondary" className="text-[10px]">JSON-RPC 2.0</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Connect desktop AI tools (Claude Desktop, Cursor, VSCode, AI CLI agents) to Jiga List via HTTP/SSE.
-              </p>
-              <div className="rounded-lg bg-muted/60 p-3 font-mono text-xs space-y-1">
-                <div className="text-muted-foreground text-[10px]">Endpoint URL:</div>
-                <div className="text-foreground font-semibold selection:bg-primary selection:text-primary-foreground">
-                  /api/mcp
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Supports standard methods: <code className="bg-muted px-1 py-0.5 rounded text-foreground">initialize</code>, <code className="bg-muted px-1 py-0.5 rounded text-foreground">tools/list</code>, and <code className="bg-muted px-1 py-0.5 rounded text-foreground">tools/call</code>.
-              </p>
-            </div>
-
-            {/* WebMCP */}
-            <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-primary" />
-                  <h4 className="text-sm font-semibold text-foreground">2. Client-side WebMCP</h4>
-                </div>
-                <Badge variant="secondary" className="text-[10px]">Browser Native</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Browser extensions and AI page assistants can interact directly with the in-browser search index and local favorites.
-              </p>
-              <div className="rounded-lg bg-muted/60 p-3 font-mono text-xs space-y-1">
-                <div className="text-muted-foreground text-[10px]">Browser Object:</div>
-                <div className="text-foreground font-semibold">
-                  window.webMcp
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Dispatches <code className="bg-muted px-1 py-0.5 rounded text-foreground">webmcp-registered</code> custom browser event on page load.
-              </p>
-            </div>
-          </div>
-
-          {/* Available Tools */}
-          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              Exposed MCP Tools
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
-                <div className="font-mono font-semibold text-primary">search_resources</div>
-                <div className="text-muted-foreground">Fuzzy search resources, tools, and streaming sites with query, category, and limit options.</div>
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
-                <div className="font-mono font-semibold text-primary">list_categories</div>
-                <div className="text-muted-foreground">List all available categories, short names, descriptions, and resource counts.</div>
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
-                <div className="font-mono font-semibold text-primary">get_resource</div>
-                <div className="text-muted-foreground">Fetch full metadata, mirrors, status flags, and tags for a specific resource ID.</div>
-              </div>
-              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
-                <div className="font-mono font-semibold text-primary">manage_favorites</div>
-                <div className="text-muted-foreground">Client-side WebMCP tool to list, add, or remove items from local offline favorites.</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Setup Configuration Examples */}
-          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Terminal className="h-4 w-4 text-primary" />
-              Claude Desktop / Cursor Configuration Example
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Add Jiga List to your local AI config file (e.g., <code className="bg-muted px-1 py-0.5 rounded text-foreground">claude_desktop_config.json</code>):
-            </p>
-            <pre className="rounded-lg bg-zinc-950 p-4 text-xs font-mono text-zinc-100 overflow-x-auto leading-relaxed">
-{`{
-  "mcpServers": {
-    "jiga-list": {
-      "url": "${SITE_CONFIG.url}/api/mcp",
-      "transport": "http"
-    }
-  }
-}`}
-            </pre>
-          </div>
-        </div>
-      )}
-
 
       {/* SECTION 2: DEVELOPER & PROGRAMMING COMMUNITY (مجتمع البرمجة) */}
       {activeSection === "developers" && (
