@@ -65,7 +65,7 @@ export default function DocsPage() {
   );
 }
 
-type MainSection = "contribute" | "guide" | "security" | "developers";
+type MainSection = "contribute" | "guide" | "security" | "developers" | "mcp";
 type ContributeType = "site" | "category" | "report";
 
 function DocsContent() {
@@ -76,6 +76,7 @@ function DocsContent() {
   const prefillResourceId = searchParams.get("resource") || "";
 
   const [activeSection, setActiveSection] = React.useState<MainSection>(() => {
+    if (initialTab === "mcp" || initialTab === "mcp-protocol") return "mcp";
     if (initialTab === "usage" || initialTab === "guide") return "guide";
     if (initialTab === "security") return "security";
     if (initialTab === "developers" || initialTab === "dev" || initialTab === "code") return "developers";
@@ -93,7 +94,9 @@ function DocsContent() {
     const tabParam = searchParams.get("tab");
     const resourceParam = searchParams.get("resource");
     queueMicrotask(() => {
-      if (tabParam === "usage" || tabParam === "guide") {
+      if (tabParam === "mcp" || tabParam === "mcp-protocol") {
+        setActiveSection("mcp");
+      } else if (tabParam === "usage" || tabParam === "guide") {
         setActiveSection("guide");
       } else if (tabParam === "security") {
         setActiveSection("security");
@@ -213,6 +216,11 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
   const [copiedGhPagesWorkflow, setCopiedGhPagesWorkflow] = React.useState(false);
   const [deployPlatformTab, setDeployPlatformTab] = React.useState<"vercel" | "cloudflare" | "github">("vercel");
 
+  // MCP tab helper states
+  const [copiedMcpClaude, setCopiedMcpClaude] = React.useState(false);
+  const [copiedMcpCursor, setCopiedMcpCursor] = React.useState(false);
+  const [copiedMcpCli, setCopiedMcpCli] = React.useState(false);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Header */}
@@ -258,7 +266,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
       </div>
 
       {/* Main Section Navigation Bar */}
-      <div className="mb-8 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1.5 sm:grid-cols-4 sm:gap-2">
+      <div className="mb-8 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1.5 sm:grid-cols-3 md:grid-cols-5 sm:gap-2">
         <button
           type="button"
           onClick={() => setActiveSection("contribute")}
@@ -270,6 +278,19 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
         >
           <Github className="h-4 w-4 text-primary shrink-0" />
           <span className="truncate">GitHub Issues</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection("mcp")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "mcp"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Cpu className="h-4 w-4 text-primary shrink-0" />
+          <span className="truncate">MCP Protocol</span>
         </button>
 
         <button
@@ -765,6 +786,263 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* SECTION: MODEL CONTEXT PROTOCOL (MCP) */}
+      {activeSection === "mcp" && (
+        <div className="space-y-6">
+          <div className="border-b border-border pb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-foreground">
+                Model Context Protocol (MCP) Integration
+              </h2>
+              <Badge variant="outline" className="border-primary/40 text-primary text-[11px]">
+                AI Assistant Protocol
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Connect Jiga List directory &amp; wiki resources directly to AI assistants like Claude Desktop, Cursor, Windsurf, and VS Code.
+            </p>
+          </div>
+
+          {/* Overview Card */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Cpu className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">What is Model Context Protocol (MCP)?</h3>
+                <p className="text-xs text-muted-foreground">Universal open standard for AI tools to query structured digital data.</p>
+              </div>
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              MCP allows your AI assistant (Claude, Cursor, Windsurf, ChatGPT Dev Tools) to query the full Jiga List directory in real time. Your LLM can instantly fetch verified software links, adblocking tools, AI models, media streaming mirrors, and educational resources without hallucination.
+            </p>
+          </div>
+
+          {/* Capability 1: Tools Provided by Jiga List MCP */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Available MCP Tools &amp; Data Access</h3>
+                <p className="text-xs text-muted-foreground">Real-time capabilities exposed to connected AI assistants.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 text-xs">
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Search className="h-3.5 w-3.5 text-primary" />
+                  search_resources
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Search indexed resources by keyword, category, tag, or safety flag (e.g., &ldquo;adblocker&rdquo;, &ldquo;free&rdquo;, &ldquo;open-source&rdquo;).
+                </p>
+              </div>
+
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <BookOpen className="h-3.5 w-3.5 text-primary" />
+                  get_categories
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Fetch all 16+ curated categories (AI, Adblocking, Wiki, Gaming, Movies, Linux, macOS, Android, iOS, etc.).
+                </p>
+              </div>
+
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-1">
+                <div className="font-semibold text-foreground flex items-center gap-1.5">
+                  <Globe className="h-3.5 w-3.5 text-primary" />
+                  get_resource_mirrors
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Retrieve verified active domains and backup mirror URLs for streaming platforms and tools.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Configuration Guides */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Terminal className="h-4 w-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Connecting MCP to Your Client</h3>
+                <p className="text-xs text-muted-foreground">Add Jiga List MCP configuration to your preferred AI environment.</p>
+              </div>
+            </div>
+
+            {/* Option A: Claude Desktop */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span>1. Claude Desktop Configuration (<code className="font-mono text-[11px]">claude_desktop_config.json</code>)</span>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>claude_desktop_config.json</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const snip = `{
+  "mcpServers": {
+    "jiga-list": {
+      "command": "npx",
+      "args": ["-y", "@jigalist/mcp-server"]
+    }
+  }
+}`;
+                      navigator.clipboard.writeText(snip);
+                      setCopiedMcpClaude(true);
+                      setTimeout(() => setCopiedMcpClaude(false), 2000);
+                    }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                  >
+                    {copiedMcpClaude ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy JSON
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+{`{
+  "mcpServers": {
+    "jiga-list": {
+      "command": "npx",
+      "args": ["-y", "@jigalist/mcp-server"]
+    }
+  }
+}`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Option B: Cursor / Windsurf / VSCode */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span>2. Cursor / Windsurf / VS Code MCP Extension</span>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>Settings -&gt; Features -&gt; MCP Servers</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const snip = `{
+  "mcp": {
+    "servers": {
+      "jiga-list": {
+        "type": "command",
+        "command": "npx",
+        "args": ["-y", "@jigalist/mcp-server"]
+      }
+    }
+  }
+}`;
+                      navigator.clipboard.writeText(snip);
+                      setCopiedMcpCursor(true);
+                      setTimeout(() => setCopiedMcpCursor(false), 2000);
+                    }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                  >
+                    {copiedMcpCursor ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy Settings
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+{`{
+  "mcp": {
+    "servers": {
+      "jiga-list": {
+        "type": "command",
+        "command": "npx",
+        "args": ["-y", "@jigalist/mcp-server"]
+      }
+    }
+  }
+}`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Option C: Direct CLI Command */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span>3. Direct CLI Run / Testing</span>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/40 p-3">
+                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                  <span>Terminal</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const snip = "npx -y @jigalist/mcp-server";
+                      navigator.clipboard.writeText(snip);
+                      setCopiedMcpCli(true);
+                      setTimeout(() => setCopiedMcpCli(false), 2000);
+                    }}
+                    className="flex items-center gap-1 text-[11px] hover:text-foreground"
+                  >
+                    {copiedMcpCli ? (
+                      <>
+                        <Check className="h-3 w-3 text-emerald-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy Command
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="overflow-x-auto whitespace-pre font-mono text-xs text-foreground/90">
+                  npx -y @jigalist/mcp-server
+                </pre>
+              </div>
+            </div>
+          </div>
+
+          {/* Example AI Assistant Usage */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <HelpCircle className="h-4 w-4 text-primary" />
+              Example Prompts for Connected AI Assistants
+            </h3>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <div className="rounded-md border bg-muted/30 p-2.5 font-mono text-foreground">
+                &ldquo;Search Jiga List for open-source adblockers for Android with no ads.&rdquo;
+              </div>
+              <div className="rounded-md border bg-muted/30 p-2.5 font-mono text-foreground">
+                &ldquo;Find verified active mirrors for streaming movies on Jiga List.&rdquo;
+              </div>
+              <div className="rounded-md border bg-muted/30 p-2.5 font-mono text-foreground">
+                &ldquo;List all recommended educational courses in the programming category from Jiga List.&rdquo;
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
