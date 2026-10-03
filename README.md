@@ -23,7 +23,7 @@ Every resource is indexed at build time and served as static HTML (SSG) — **ze
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16%2B%20App%20Router-black?style=flat-square&logo=next.js" alt="Next.js 16" />
   <img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-v3-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Search-Fuse.js-orange?style=flat-square" alt="Fuse.js" />
   <img src="https://img.shields.io/badge/License-MIT-emerald?style=flat-square" alt="License MIT" />
 </p>
