@@ -261,7 +261,7 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
       </div>
 
       {/* Main Section Navigation Bar */}
-      <div className="mb-8 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1.5 sm:grid-cols-4 sm:gap-2">
+      <div className="mb-8 grid grid-cols-2 gap-2 rounded-xl bg-muted/60 p-1.5 sm:grid-cols-5 sm:gap-2">
         <button
           type="button"
           onClick={() => setActiveSection("contribute")}
@@ -312,6 +312,19 @@ ${catExamples || "- Example Resource 1 (https://...)\n- Example Resource 2 (http
         >
           <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
           <span className="truncate">Adblock &amp; Safety</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveSection("mcp")}
+          className={`flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all sm:text-sm ${
+            activeSection === "mcp"
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Cpu className="h-4 w-4 text-primary shrink-0" />
+          <span className="truncate">MCP &amp; AI Integration</span>
         </button>
       </div>
 
